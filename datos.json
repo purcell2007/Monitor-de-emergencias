@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-11-17T06:26:39Z",
+ "actualizado": "2026-11-17T07:25:52Z",
  "eventos": [
   {
    "id": "ebola-rdc",
@@ -321,30 +321,30 @@
    "f": [
     [
      "≈50 %",
-     "trenes previstos que circulan en Rodalies a primera hora"
+     "trenes que circulan en Rodalies, frente al 66 % de mínimos"
+    ],
+    [
+     "6",
+     "AVE cancelados anunciados en Atocha por la mañana"
     ],
     [
      "72 %",
      "mínimos AVE y Larga Distancia"
-    ],
-    [
-     "66 %",
-     "mínimos Rodalies en hora punta"
     ]
    ],
-   "s": "Empezó a medianoche en Renfe, Adif, operadoras privadas y mercancías, convocada por Semaf, CCOO, UGT, CGT, SF y Alferro para reclamar más seguridad en la red. A primera hora, Rodalies informa de que los maquinistas incumplen los servicios mínimos y solo circula cerca de la mitad de los trenes previstos; recomienda buscar transporte alternativo. Mínimos: 65 % en Media Distancia y 26 % en mercancías.",
+   "s": "Empezó a medianoche en Renfe, Adif, operadoras privadas y mercancías, convocada por Semaf, CCOO, UGT y otros sindicatos para reclamar más seguridad en la red. Renfe atribuye las incidencias al incumplimiento de los servicios mínimos: en Rodalies circula cerca de la mitad de los trenes y Cercanías Madrid está casi parada, con solo dos trenes por Atocha a primera hora. Recomienda usar transporte alternativo.",
    "src": [
+    [
+     "elDiario.es",
+     "https://www.eldiario.es/madrid/somos/huelga-maquinistas-deja-cercanias-madrid-servicio-numerosas-cancelaciones-ave_1_13667901.html"
+    ],
+    [
+     "El Español",
+     "https://www.elespanol.com/invertia/observatorios/movilidad/20261117/arranca-huelga-ferroviaria-caos-cercanias-rodalies-servicios-minimos-no-cumpliendo/1003744460644_0.html"
+    ],
     [
      "Diari Més (ACN)",
      "https://www.diarimes.com/es/actualidad/cataluna/261117/maquinistas-alrededores-incumplen-servicios-minimos-circulan-mitad-trenes-previstos_243099.html"
-    ],
-    [
-     "Crónica Global",
-     "https://cronicaglobal.elespanol.com/vida/20261117/huelga-ferroviaria-arranca-incumplimientos-servicios-minimos-rodalies/1003742812666_0.html"
-    ],
-    [
-     "EFE vía Infobae",
-     "https://www.infobae.com/espana/agencias/2026/11/17/el-sector-ferroviario-protagoniza-hoy-otra-huelga-para-exigir-mayor-seguridad-en-la-red/"
     ]
    ]
   },
@@ -535,20 +535,28 @@
    "id": "sumatra",
    "cat": "clima",
    "sev": 2,
-   "t": "Inundaciones en Sumatra del Norte y Aceh",
+   "t": "Inundaciones y deslizamientos en Aceh y el norte de Sumatra",
    "p": "Indonesia",
    "lat": 3.55,
    "lon": 98.9,
-   "d": "2026-11-08",
+   "d": "2026-11-12",
    "st": "Reciente",
    "f": [
     [
+     "13",
+     "distritos y ciudades afectados en una semana"
+    ],
+    [
      "9.600",
-     "personas afectadas"
+     "afectados del 5 al 8 nov (AHA Centre)"
     ]
    ],
-   "s": "Lluvias intensas del 5 al 8 de noviembre en Deli Serdang, Serdang Bedagai y Gayo Lues, con casas, puentes y una escuela dañados.",
+   "s": "Tras las lluvias del 5 al 8 de noviembre en Deli Serdang, Serdang Bedagai y Gayo Lues, nuevas crecidas y deslizamientos alcanzaron el martes 10 al menos cinco aldeas de Aceh Central, con dos puentes provisionales destruidos y una carretera provincial cortada. Las autoridades no comunicaron víctimas. El Gobierno cuenta 13 distritos y ciudades afectados en Aceh, Sumatra del Norte y Sumatra Occidental.",
    "src": [
+    [
+     "The Jakarta Post",
+     "https://www.thejakartapost.com/indonesia/2026/11/12/fresh-floods-and-landslides-hit-aceh-hamper-disaster-recovery"
+    ],
     [
      "AHA Centre (ASEAN)",
      "https://ahacentre.org/weekly-disaster-update/weekly-disaster-update-2-8-november-2026/"
