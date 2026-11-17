@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monitor Global de Emergencias</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Sala de situación nocturna: carta de puntos fija arriba, parte de novedades debajo. Un solo tema, oscuro por decisión. */
+:root{
+  color-scheme:dark;
+  --bg:#0a0f18; --panel:#111927; --panel-2:#172235; --line:#24324a;
+  --ink:#eef1f6; --muted:#93a1b8; --dot:#2b3a55;
+  --crit:#ff4d6a; --alto:#ff9838; --medio:#f0cf4a; --seg:#62b8d0;
+  --ok:#57d39b;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-text-size-adjust:100%}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.wrap{max-width:1240px;margin:0 auto;padding:0 16px}
+
+header.top{padding:18px 0 12px;display:flex;flex-wrap:wrap;gap:10px 20px;align-items:flex-end;justify-content:space-between}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,8vw,54px);line-height:.92;letter-spacing:.01em;text-transform:uppercase;margin:0;text-wrap:balance}
+h1 span{color:var(--crit)}
+.meta{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 12px;font-family:var(--mono);font-size:12px}
+.pill i{width:8px;height:8px;border-radius:50%;background:var(--medio);flex:none}
+.pill.live i{background:var(--ok);animation:blink 1.6s infinite}
+.clock{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+/* resumen por gravedad */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:4px 0 12px}
+.tile{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--c);border-radius:6px;padding:8px 10px;text-align:left;cursor:pointer;min-width:0}
+.tile b{display:block;font-family:var(--display);font-weight:800;font-size:34px;line-height:1;color:var(--c)}
+.tile span{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:0;color:var(--muted);overflow-wrap:anywhere}
+.tile[aria-pressed="true"]{background:var(--panel-2);border-color:var(--c)}
+.tile.off{opacity:.45}
+
+.grid{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
+/* mapa */
+.mapbox{position:sticky;top:0;z-index:5;background:var(--bg);padding:6px 0 8px;border-bottom:1px solid var(--line)}
+.map{position:relative;width:100%;aspect-ratio:16/10;background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;overflow:clip;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.map.drag{cursor:grabbing}
+.map canvas{position:absolute;inset:0;width:100%;height:100%}
+.mk,.cl{position:absolute;transform:translate(-50%,-50%);border-radius:50%;padding:0;cursor:pointer}
+.mk{border:1.5px solid var(--bg);background:var(--c);width:var(--s);height:var(--s)}
+.mk::before{content:"";position:absolute;inset:-9px;border-radius:50%}
+.mk.pulse::after{content:"";position:absolute;inset:-2px;border-radius:50%;border:1.5px solid var(--c);animation:ring 2.2s ease-out infinite}
+.mk.sel{outline:2px solid var(--ink);outline-offset:3px;z-index:9!important}
+.mk .lb{position:absolute;left:calc(100% + 6px);top:50%;transform:translateY(-50%);white-space:nowrap;font-family:var(--mono);font-size:11px;line-height:1.3;color:var(--ink);background:rgba(10,15,24,.85);border-radius:3px;padding:1px 5px;pointer-events:none}
+.cl{width:26px;height:26px;background:var(--bg);border:2px solid var(--c);color:var(--c);font-family:var(--mono);font-weight:500;font-size:13px;line-height:1;z-index:8;box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 28%,transparent)}
+.zoom{position:absolute;top:6px;right:6px;display:flex;flex-direction:column;gap:4px;z-index:12}
+.zoom button{width:34px;height:34px;border-radius:6px;border:1px solid var(--line);background:rgba(17,25,39,.92);font-family:var(--mono);font-size:18px;line-height:1;cursor:pointer}
+.zoom button:disabled{opacity:.4;cursor:default}
+.pad{position:absolute;left:6px;bottom:6px;display:grid;grid-template-areas:". u ." "l . r" ". d .";gap:1px;z-index:12}
+.pad button{width:27px;height:27px;border-radius:5px;border:1px solid var(--line);background:rgba(17,25,39,.92);font-size:10px;line-height:1;cursor:pointer;padding:0}
+.map,.map *{touch-action:none}
+.mapkind{position:absolute;left:8px;top:6px;font-family:var(--mono);font-size:10px;color:var(--muted);background:rgba(10,15,24,.7);border-radius:3px;padding:1px 5px;pointer-events:none;z-index:11}
+.maplabel{position:absolute;left:96px;bottom:6px;right:8px;font-family:var(--mono);font-size:11px;color:var(--ink);background:rgba(10,15,24,.82);border-radius:4px;padding:3px 7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;z-index:11}
+.maplabel:empty{display:none}
+
+.refresh{border:1px solid var(--ink);background:var(--ink);color:var(--bg);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer}
+.refresh:disabled{opacity:.6;cursor:default}
+.latest{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:9px 12px 4px;margin:0 0 10px}
+.latest h2{font-family:var(--display);font-weight:800;font-size:20px;text-transform:uppercase;letter-spacing:.02em;margin:0 0 4px;color:var(--crit)}
+.lt{display:grid;grid-template-columns:10px 68px minmax(0,1fr);gap:8px;align-items:baseline;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:7px 0;cursor:pointer}
+.lt i{width:9px;height:9px;border-radius:50%;background:var(--c);align-self:center}
+.lt .when{font-family:var(--mono);font-size:11.5px;color:var(--muted);white-space:nowrap}
+.lt .what{font-size:14px;line-height:1.25}
+.ctl{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:0 0 8px}
+.ctl label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-right:6px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{border:0;border-left:1px solid var(--line);background:var(--panel);padding:6px 10px;font-size:13px;cursor:pointer;white-space:nowrap}
+.seg button:first-child{border-left:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.grp{font-family:var(--mono);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink);margin:10px 0 0;padding:6px 0 4px;border-bottom:1px solid var(--line)}
+.grp:first-child{margin-top:0}
+.grp em{font-style:normal;color:var(--muted)}
+/* filtros */
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer;white-space:nowrap}
+.chip em{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:5px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip[aria-pressed="true"] em{color:var(--bg)}
+
+/* parte */
+.count{font-family:var(--mono);font-size:12px;color:var(--muted);margin:0 0 8px}
+.list{display:grid;gap:8px}
+.ev{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:6px;padding:10px 12px 11px;cursor:pointer;scroll-margin-top:calc(62.5vw + 34px)}
+.ev.sel{background:var(--panel-2);border-color:var(--c)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.tags .sev{color:var(--bg);background:var(--c);border-radius:3px;padding:1px 6px;font-weight:600}
+.tags .st{margin-left:auto;font-family:var(--mono);text-transform:none;letter-spacing:0;border:1px solid var(--line);border-radius:3px;padding:0 6px;color:var(--ink)}
+.tags .lv{color:var(--ok)}
+.ev h3{font-family:var(--display);font-weight:600;font-size:23px;line-height:1.05;letter-spacing:.01em;margin:7px 0 3px;text-wrap:balance}
+.where{font-family:var(--mono);font-size:12px;color:var(--muted);margin:0 0 6px}
+.figs{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0 0 6px}
+.figs div{min-width:0}
+.figs b{display:block;font-family:var(--mono);font-weight:500;font-size:19px;color:var(--c);font-variant-numeric:tabular-nums}
+.figs span{font-size:12px;color:var(--muted)}
+.sum{margin:0 0 6px;max-width:65ch}
+.src{margin:0;font-size:12px;color:var(--muted)}
+.src a{color:var(--ink);text-underline-offset:2px}
+
+footer{margin:26px 0 40px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+footer h2{font-family:var(--display);font-weight:600;font-size:22px;color:var(--ink);margin:0 0 6px;text-transform:uppercase}
+footer p{max-width:70ch;margin:0 0 10px}
+footer ul{margin:0 0 10px;padding-left:18px;max-width:70ch}
+
+.c4{--c:var(--crit)} .c3{--c:var(--alto)} .c2{--c:var(--medio)} .c1{--c:var(--seg)}
+
+@keyframes ring{0%{transform:scale(1);opacity:.9}100%{transform:scale(2.6);opacity:0}}
+@keyframes blink{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.mk.pulse::after,.pill.live i{animation:none}}
+
+@media (min-width:900px){
+  .grid{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:start;gap:22px}
+  .mapbox{top:10px;border-bottom:0;padding:0}
+  .map{aspect-ratio:2/1.15}
+  .ev{scroll-margin-top:16px}
+  .tile b{font-size:44px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Monitor global<br>de <span>emergencias</span></h1>
+    <div class="meta">
+      <span class="pill" id="pill"><i></i><span id="pilltxt">Instantánea verificada · 17 nov 2026, 05:10 UTC</span></span>
+      <button class="refresh" id="refresh">↻ Actualizar datos</button>
+      <span class="clock" id="srcs"></span>
+      <span class="clock" id="clock"></span>
+    </div>
+  </header>
+
+  <div class="tiles" id="tiles" role="group" aria-label="Filtrar por gravedad"></div>
+
+  <div class="grid">
+    <div class="mapbox">
+      <div class="map" id="map">
+        <canvas id="cv" aria-hidden="true"></canvas>
+        <div id="marks"></div>
+        <span class="mapkind" id="mapkind"></span>
+        <div class="zoom" role="group" aria-label="Zoom del mapa">
+          <button id="zin" aria-label="Acercar">+</button>
+          <button id="zout" aria-label="Alejar">−</button>
+          <button id="zreset" aria-label="Ver el mundo entero">⤢</button>
+        </div>
+        <div class="pad" role="group" aria-label="Mover el mapa">
+          <button data-dx="0" data-dy="-1" style="grid-area:u" aria-label="Arriba">▲</button>
+          <button data-dx="-1" data-dy="0" style="grid-area:l" aria-label="Izquierda">◀</button>
+          <button data-dx="1" data-dy="0" style="grid-area:r" aria-label="Derecha">▶</button>
+          <button data-dx="0" data-dy="1" style="grid-area:d" aria-label="Abajo">▼</button>
+        </div>
+        <div class="maplabel" id="maplabel"></div>
+      </div>
+    </div>
+    <main>
+      <section class="latest" aria-labelledby="lth"><h2 id="lth">Última hora</h2><div id="latest"></div></section>
+      <div class="ctl" id="ctl"></div>
+      <div class="chips" id="chips" role="group" aria-label="Filtrar por temática"></div>
+      <p class="count" id="count"></p>
+      <div class="list" id="list"></div>
+    </main>
+  </div>
+
+  <footer>
+    <h2>Fuentes y método</h2>
+    <p>Cada ficha lleva su fuente y la fecha del dato. Las cifras proceden de organismos oficiales (OMS, ECDC, USGS, NASA EONET, GDACS, OCHA, PHIVOLCS, Ministerio de Transportes) o de medios que citan a esos organismos y a FlightAware. Nada está estimado ni inventado; lo que no pude contrastar con una fuente fiable se ha dejado fuera.</p>
+    <ul>
+      <li><strong>Gravedad:</strong> Crítico = emergencia internacional declarada o miles de víctimas; Alto = daños graves o servicio esencial interrumpido ahora; Medio = incidencia relevante, resuelta hace poco o prevista; Seguimiento = evento registrado sin daños notables.</li>
+      <li><strong>Actualización:</strong> al abrir o recargar la página, cada 5 minutos y al pulsar «Actualizar datos», la página pide datos nuevos a USGS (sismos), NASA EONET y GDACS (desastres naturales), la OMS (brotes) y ReliefWeb (desastres en curso). Debajo del botón se ve qué fuentes han respondido. Esto solo funciona cuando el archivo se abre en un navegador o está alojado en una web: dentro de Claude las conexiones externas están bloqueadas y se ve la instantánea. Las fichas de vuelos, huelgas, servicios y crisis humanitarias son redacción contrastada a mano, no tienen fuente automática y llevan siempre su fecha.</li>
+      <li><strong>Límites:</strong> la lista de GDACS se leyó solo en parte (primeras 33 alertas, todas verdes). El mapa usa los contornos reales de países de una librería pública; si esa librería no carga, se queda en un contorno esquemático y lo indica en la esquina. Las posiciones de los eventos son exactas en ambos casos.</li>
+      <li><strong>Mapa:</strong> pellizca, usa la rueda o los botones + y − para acercar; arrastra con el dedo o usa las flechas para moverte en cualquier dirección. Los círculos con número agrupan eventos cercanos: tócalos para separarlos.</li>
+    </ul>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datamaps/0.5.9/datamaps.world.min.js"></script>
+<script>
+const SNAP="17 nov 2026, 05:10 UTC";
+const SEV={4:"Crítico",3:"Alto",2:"Medio",1:"Seguimiento"};
+const CATS=[["transporte","Transporte y vuelos"],["servicios","Servicios esenciales"],["salud","Brotes y salud"],["geo","Sismos y volcanes"],["clima","Tiempo extremo e incendios"],["human","Crisis humanitarias"]];
+const CATN=Object.fromEntries(CATS);
+
+/* t:título p:lugar d:fecha del dato st:estado f:cifras s:resumen src:[nombre,url] feed: origen sustituible en directo */
+let EVENTS=[
+{id:"ebola-rdc",cat:"salud",sev:4,t:"Ébola (virus Bundibugyo) en la RD del Congo",p:"Ituri y otras 7 provincias, RDC",lat:1.56,lon:30.25,d:"2026-11-11",st:"Activo",
+ f:[["≈11.000","casos confirmados"],["+5.300","muertes"],["8","provincias"]],
+ s:"Sigue siendo emergencia de salud pública de importancia internacional. La transmisión baja en algunas zonas, pero aparecen focos nuevos y la inseguridad frena la respuesta. Es ya el mayor brote de ébola registrado en el país.",
+ src:[["OMS, Director General (11 nov)","https://www.who.int/news-room/speeches/item/who-director-general-s-opening-remarks-at-the-member-state-briefing-on-ebola-outbreak-in-the-democratic-republic-of-the-congo---11-november-2026"],["OMS DON625","https://www.who.int/emergencies/disease-outbreak-news/item/2026-DON625"]]},
+{id:"faa",cat:"transporte",sev:2,t:"Parada nacional de vuelos de la FAA: vuelta a la normalidad",p:"Estados Unidos",lat:39,lon:-98,d:"2026-11-17",st:"Normalizado",
+ f:[["+18.000","vuelos cancelados en tres días"],["≈28.000","vuelos retrasados"],["≈300","cancelados el lunes por la mañana"]],
+ s:"El viernes 13 la FAA detuvo casi todas las salidas del país durante más de cuatro horas por un fallo de comunicaciones entre centros de control. Se sospecha de un router instalado en una tarea de mantenimiento; la investigación sigue abierta. El lunes el tráfico volvió prácticamente a la normalidad.",
+ src:[["BusinessWorld (Reuters)","https://bworldonline.com/world/2026/11/17/794432/us-air-travel-recovery-stumbles-on-united-pause-as-funding-fight-brews/"],["NBC News (FlightAware)","https://www.nbcnews.com/news/us-news/flights-air-traffic-delays-groundstop-faa-duffy-rcna609545"],["ABC News","https://abcnews.com/US/live-updates/faa-ground-stop-live-updates-hundreds-flights-canceled/?id=138125140"]]},
+{id:"colera-rdc",cat:"salud",sev:3,t:"Cólera en la RD del Congo, el peor brote en décadas",p:"RD del Congo",lat:-4.32,lon:15.31,d:"2026-11-04",st:"Activo",
+ f:[["+60.000","casos en 2026"],["1.800","muertes"]],
+ s:"Coincide con el brote de ébola y con una crisis alimentaria que la ONU prevé en niveles récord.",
+ src:[["OMS, rueda de prensa (4 nov)","https://www.who.int/news-room/speeches/item/who-director-general-s-opening-remarks-at-the-media-briefing---4-november-2026"]]},
+{id:"gaza",cat:"human",sev:3,t:"Gaza: inundaciones sobre los campamentos de desplazados",p:"Franja de Gaza",lat:31.4,lon:34.4,d:"2026-11-13",st:"Activo",
+ f:[["≈226.000","personas afectadas"],["+40.000","refugios dañados"]],
+ s:"Las lluvias desde el 6 de noviembre anegaron tiendas, derribaron edificios ya dañados e interrumpieron servicios esenciales. OCHA pide más permisos de entrada para material de refugio.",
+ src:[["OCHA (13 nov)","https://www.ochaopt.org/content/humanitarian-situation-report-13-november-2026"],["OCHA, lluvias (8 nov)","https://www.ochaopt.org/content/humanitarian-situation-report-heavy-rains-gaza-strip-8-november-2026"]]},
+{id:"ucrania",cat:"human",sev:3,t:"Ucrania: reservas de refugio de emergencia casi agotadas",p:"Ucrania",lat:49,lon:32,d:"2026-11-13",st:"Activo",
+ f:[["10,8 M","personas necesitan ayuda"],["4,1 M","cubiertas por el plan 2026"]],
+ s:"Los socios humanitarios siguen respondiendo a los ataques con existencias muy bajas de material de refugio, a las puertas del invierno.",
+ src:[["OCHA Ucrania","https://www.unocha.org/ukraine"]]},
+{id:"sudan-sur",cat:"human",sev:3,t:"Sudán del Sur: desnutrición aguda e inseguridad",p:"Sudán del Sur",lat:6.9,lon:31.3,d:"2026-11-02",st:"Activo",
+ f:[["1,2 M","embarazadas y lactantes con desnutrición aguda"]],
+ s:"Economía en caída, precios altos e inundaciones que destruyeron cosechas y caminos. El acceso humanitario está limitado por los combates.",
+ src:[["Center for Disaster Philanthropy (datos OCHA)","https://disasterphilanthropy.org/blog/what-were-watching-weekly-disaster-update-november-2-2026/"]]},
+{id:"rdc-hambre",cat:"human",sev:3,t:"RD del Congo: inseguridad alimentaria en cifras récord",p:"Este de la RDC",lat:-2.5,lon:28.8,d:"2026-11-13",st:"Activo",f:[],
+ s:"Un comunicado conjunto de agencias de la ONU advierte de que el conflicto y los brotes de enfermedad agravan el hambre y de que se prevé un número récord de personas en inseguridad alimentaria aguda.",
+ src:[["OMS, situación ébola RDC","https://www.who.int/emergencies/situations/ebola-outbreak---drc-2026"]]},
+{id:"mayon",cat:"geo",sev:3,t:"Volcán Mayón en nivel de alerta 3",p:"Albay, Filipinas",lat:13.26,lon:123.69,d:"2026-11-13",st:"Activo",
+ f:[["3.903","evacuados (4 nov)"],["6 km","zona de exclusión"]],
+ s:"Magma cerca del cráter y riesgo de erupción peligrosa. El 13 de noviembre se detectó un nuevo domo de lava; las autoridades no descartan subir al nivel 4.",
+ src:[["Daily Tribune","https://tribune.net.ph/2026/11/03/mayon-spews-ash-plume-displaces-nearly-4k-residents"],["Smithsonian/USGS, informe semanal","https://volcano.si.edu/reports_weekly.cfm"]]},
+{id:"xavier",cat:"clima",sev:3,t:"Ciclón tropical severo Xavier, categoría 3",p:"Islas Cook del Norte",lat:-9.5,lon:-161.5,d:"2026-11-16T23:31:00Z",st:"Activo",
+ f:[["Cat. 3","previsto Cat. 4 en 24 h"],["120 km/h","viento sostenido"],["170 km/h","rachas"]],
+ s:"Pasó de categoría 1 a 3 en un día y sigue intensificándose. Aviso de temporal en Manihiki y Rakahanga y alerta de ciclón en Pukapuka y Nassau. Se espera que alcance su máximo en mar abierto.",
+ src:[["PMN (Servicio Meteorológico de Fiyi)","https://pmn.co.nz/read/pacific-region/cyclone-xavier-set-to-strengthen-to-category-4-near-cook-islands"],["RNZ","https://www.rnz.co.nz/news/pacific/2633910/cyclone-xavier-intensifies-to-category-2-alert-issued-for-pukapuka-and-nassau"]]},
+{id:"ecuador",cat:"clima",sev:3,t:"Inundaciones por El Niño en Ecuador",p:"Guayaquil y Milagro, Ecuador",lat:-2.17,lon:-79.92,d:"2026-11-16",st:"Activo",
+ f:[["14","muertes en el país"],["172,8 mm","lluvia en Milagro"]],
+ s:"Dos fallecidos más en Guayaquil elevan el balance nacional de la temporada de lluvias.",
+ src:[["The Watchers","https://watchers.news/2026/11/16/tropical-cyclone-xavier-northern-cook-islands-manihiki-rakahanga-november-2026"]]},
+{id:"huelga-17n",cat:"transporte",sev:2,t:"Huelga ferroviaria en toda España",p:"España · hoy martes 17 nov, hasta las 23:59",lat:40.4,lon:-3.7,d:"2026-11-17T00:00:00Z",st:"En curso",
+ f:[["72 %","mínimos AVE y Larga Distancia"],["65 %","Media Distancia"],["50–75 %","Cercanías y Rodalies"]],
+ s:"Empezó a medianoche en Renfe, Adif, Iryo y Ouigo para reclamar más seguridad en la red y refuerzo de plantillas. Renfe pide comprobar cada tren antes de viajar. Adif tiene otro paro de 24 horas el jueves 19.",
+ src:[["EFE vía Infobae","https://www.infobae.com/espana/agencias/2026/11/17/el-sector-ferroviario-protagoniza-hoy-otra-huelga-para-exigir-mayor-seguridad-en-la-red/"],["elDiario.es","https://www.eldiario.es/economia/son-servicios-minimos-huelga-ferroviaria-martes-17-noviembre_1_13666598.html"]]},
+{id:"united",cat:"transporte",sev:2,t:"United Airlines: caída de sistemas informáticos",p:"Estados Unidos",lat:41.9,lon:-87.6,d:"2026-11-16T22:19:00Z",st:"Resuelto",
+ f:[["418","vuelos retrasados"],["21","cancelados"],["≈1 h","salidas detenidas"]],
+ s:"Un fallo tecnológico propio de la aerolínea, sin relación conocida con la parada de la FAA, detuvo sus salidas durante cerca de una hora. Los vuelos en el aire no se vieron afectados.",
+ src:[["FTN News (FlightAware)","https://ftnnews.com/travel-news/aviation/united-airlines-tech-outage-faa-ground-stop-2026/"],["BusinessWorld (Reuters)","https://bworldonline.com/world/2026/11/17/794432/us-air-travel-recovery-stumbles-on-united-pause-as-funding-fight-brews/"]]},
+{id:"microsoft",cat:"servicios",sev:2,t:"Caída mundial de Microsoft 365",p:"Más de 70 países",lat:47.67,lon:-122.12,d:"2026-11-14",st:"Resuelto",
+ f:[["+70","países afectados"],["12–14 nov","duración"],["≈130.000","avisos en EE. UU. en el pico"]],
+ s:"Outlook, Teams y Copilot dejaron sin correo a gobiernos, hospitales, tribunales, bancos y aerolíneas. Microsoft lo atribuye a una ampliación de capacidad de red, descarta un ciberataque y publicará un informe preliminar.",
+ src:[["GeekWire","https://www.geekwire.com/2026/i-hope-this-email-finds-you-microsoft-declares-outage-over-as-the-world-digs-out-of-its-inbox/"],["AP vía WEAU","https://www.weau.com/2026/11/14/microsoft-says-services-fully-restored-after-hourslong-global-outage/?outputType=amp"]]},
+{id:"ebola-kenia",cat:"salud",sev:2,t:"Ébola importado en Kenia",p:"Kenia",lat:-1.29,lon:36.82,d:"2026-11-09",st:"Contenido",
+ f:[["9","casos confirmados"],["2","muertes"]],
+ s:"Todos los casos enlazan con el primero. El último se notificó el 20 de octubre y los contactos terminaron su seguimiento el 11 de noviembre.",
+ src:[["ECDC (10 nov)","https://www.ecdc.europa.eu/en/public-health-events/2026-eip-00026/2026-11-10"]]},
+{id:"ebola-nigeria",cat:"salud",sev:2,t:"Ébola: un caso importado en Nigeria",p:"Nigeria",lat:9.06,lon:7.49,d:"2026-11-04",st:"Contenido",f:[["1","caso confirmado"]],
+ s:"La OMS destacó la respuesta rápida de Nigeria y Kenia ante los casos llegados desde la RDC.",
+ src:[["OMS, rueda de prensa (4 nov)","https://www.who.int/news-room/speeches/item/who-director-general-s-opening-remarks-at-the-media-briefing---4-november-2026"]]},
+{id:"sarampion",cat:"salud",sev:2,t:"Sarampión en Estados Unidos: más del doble que en 2025",p:"Estados Unidos",lat:33,lon:-97,d:"2026-11-14",st:"Activo",
+ f:[["5.412","casos confirmados en 2026"],["591","hospitalizaciones"],["6","muertes"]],
+ s:"Los CDC cuentan 43 brotes este año; en todo 2025 hubo 2.289 casos.",
+ src:[["Weekly Round Up of Infectious Disease (datos CDC)","https://chrisramamd.substack.com/p/the-weekly-round-up-of-infectious-16d"]]},
+{id:"shamonda",cat:"salud",sev:2,t:"Primer caso humano de virus Shamonda",p:"Francia",lat:46.6,lon:2.4,d:"2026-11-02",st:"En vigilancia",f:[["1","caso confirmado, primero en el mundo"]],
+ s:"La OMS considera que aún no puede valorar el riesgo. Lo más probable es la transmisión por vector; se investiga la vía alimentaria. La transfusión parece descartada.",
+ src:[["OMS DON623","https://www.who.int/emergencies/disease-outbreak-news/item/2026-DON623"]]},
+{id:"sumatra",cat:"clima",sev:2,t:"Inundaciones en Sumatra del Norte y Aceh",p:"Indonesia",lat:3.55,lon:98.9,d:"2026-11-08",st:"Reciente",f:[["9.600","personas afectadas"]],
+ s:"Lluvias intensas del 5 al 8 de noviembre en Deli Serdang, Serdang Bedagai y Gayo Lues, con casas, puentes y una escuela dañados.",
+ src:[["AHA Centre (ASEAN)","https://ahacentre.org/weekly-disaster-update/weekly-disaster-update-2-8-november-2026/"]]},
+{id:"eq-tual",feed:"usgs",cat:"geo",sev:3,t:"Sismo M6,6 en el mar de Banda",p:"148 km al OSO de Tual, Indonesia",lat:-6.08,lon:131.49,d:"2026-11-16T21:11:00Z",st:"Sin tsunami",f:[["M 6,6","68 km de profundidad"]],
+ s:"El mayor sismo de la semana. Alerta verde de USGS: no se esperan víctimas ni daños importantes.",
+ src:[["USGS","https://earthquake.usgs.gov/earthquakes/eventpage/us7000tymu"]]},
+{id:"eq-japon",feed:"usgs",cat:"geo",sev:1,t:"Sismo M5,4 en Japón",p:"20 km al NO de Anamizu",lat:37.37,lon:136.74,d:"2026-11-16T04:24:00Z",st:"Sin tsunami",f:[["M 5,4","274 km de profundidad"]],s:"Muy profundo. Alerta verde.",src:[["USGS","https://earthquake.usgs.gov/earthquakes/eventpage/us7000tyhr"]]},
+{id:"2026-11-09T03:35:00Z",feed:"usgs",cat:"geo",sev:2,t:"Sismo M6,4 en las Islas Salomón",p:"30 km al OSO de Lata",lat:-10.87,lon:165.56,d:"2026-11-09",st:"Sin tsunami",f:[["M 6,4","17 km de profundidad"]],
+ s:"Alerta verde de USGS: sin daños ni víctimas esperables.",
+ src:[["USGS","https://earthquake.usgs.gov/earthquakes/eventpage/us7000tx16"]]},
+{id:"bulo-17n",cat:"servicios",sev:1,t:"Bulo: «apagón mundial» hoy 17 de noviembre",p:"Redes sociales, varios países",lat:null,lon:null,d:"2026-11-17",st:"Desmentido",f:[],
+ s:"No hay ningún corte de luz, internet o banca previsto. Lo único programado hoy es una prueba rutinaria del sistema de alertas de emergencia de EE. UU., hacia las 14:20 hora del Este (19:20 UTC), que interrumpe un momento la radio y la televisión.",
+ src:[["France 24","https://www.france24.com/en/tv-shows/truth-or-fake/20261116-november-17-blackout-hoax-how-a-conspiracy-theory-went-viral-around-the-world"],["NBC Chicago (FEMA)","https://www.nbcchicago.com/news/local/what-is-happening-on-nov-17-what-to-expect-as-fema-prepares-for-nationwide-test/4017342/"]]},
+{id:"ridgecrest",cat:"servicios",sev:1,t:"Incidente informático en un hospital de California",p:"Ridgecrest, EE. UU.",lat:35.62,lon:-117.67,d:"2026-11-10",st:"En recuperación",f:[],
+ s:"Teléfonos, ordenadores y farmacia quedaron afectados el 9 de noviembre. No está confirmado que sea ransomware. Los teléfonos y los pagos de farmacia ya funcionan.",
+ src:[["DysruptionHub","https://dysruptionhub.com/"]]},
+{id:"huelga-11n",cat:"transporte",sev:1,t:"Balance de la huelga general del 11-N",p:"España",lat:41.3,lon:2.1,d:"2026-11-11",st:"Finalizado",
+ f:[["289","vuelos cancelados"],["24 %","AVE y Larga Distancia suprimidos"]],
+ s:"El transporte concentró las incidencias; hoteles y agencias trabajaron con normalidad.",
+ src:[["Hosteltur","https://www.hosteltur.com/179889_balance-de-la-huelga-11n-casi-300-vuelos-cancelados-y-sin-apenas-impacto-en-hoteles-y-agencias.html"]]},
+{id:"kilauea",cat:"geo",sev:1,t:"Kīlauea: termina el episodio 56 y baja la alerta",p:"Hawái, EE. UU.",lat:19.42,lon:-155.29,d:"2026-11-06",st:"En pausa",f:[],
+ s:"El observatorio rebajó el nivel de «vigilancia» a «aviso» y el código de aviación de naranja a amarillo.",
+ src:[["USGS HVO","https://volcanoes.usgs.gov/hans-public/notice/DOI-USGS-HVO-2026-11-07T00:31:16+00:00"]]},
+{id:"2026-11-13T16:43:00Z",feed:"usgs",cat:"geo",sev:1,t:"Sismo M5,8 frente a Perú",p:"79 km al OSO de Changuillo",lat:-14.99,lon:-75.88,d:"2026-11-13",st:"Sin tsunami",f:[["M 5,8","10 km de profundidad"]],s:"Alerta verde.",src:[["USGS","https://earthquake.usgs.gov/earthquakes/eventpage/us7000ty1a"]]},
+{id:"2026-11-12T22:04:00Z",feed:"usgs",cat:"geo",sev:1,t:"Sismo M5,8 en Papúa Nueva Guinea",p:"148 km al NO de Kavieng",lat:-1.59,lon:149.89,d:"2026-11-12",st:"Sin tsunami",f:[["M 5,8","10 km de profundidad"]],s:"Alerta verde.",src:[["USGS","https://earthquake.usgs.gov/earthquakes/eventpage/us7000txwp"]]},
+{id:"2026-11-15T13:41:00Z",feed:"usgs",cat:"geo",sev:1,t:"Sismo M5,5 en Filipinas",p:"9 km al E de Union",lat:9.76,lon:126.2,d:"2026-11-15",st:"Sin tsunami",f:[["M 5,5","10 km de profundidad"]],s:"Alerta verde.",src:[["USGS","https://earthquake.usgs.gov/earthquakes/eventpage/us7000tyek"]]},
+{id:"2026-11-15T05:15:00Z",feed:"usgs",cat:"geo",sev:1,t:"Sismo M5,5 en la región de Fiyi",p:"Fiyi",lat:-19.56,lon:-177.82,d:"2026-11-15",st:"Sin tsunami",f:[["M 5,5","470 km de profundidad"]],s:"Muy profundo. Alerta verde.",src:[["USGS","https://earthquake.usgs.gov/earthquakes/eventpage/us7000tyca"]]},
+{id:"2026-11-14T09:26:00Z",feed:"usgs",cat:"geo",sev:1,t:"Sismo M5,5 en la dorsal mesoatlántica",p:"Atlántico Norte",lat:30.12,lon:-42.63,d:"2026-11-14",st:"Sin tsunami",f:[["M 5,5","10 km de profundidad"]],s:"En mar abierto. Alerta verde.",src:[["USGS","https://earthquake.usgs.gov/earthquakes/eventpage/us7000ty84"]]},
+{id:"2026-11-10T14:54:00Z",feed:"usgs",cat:"geo",sev:1,t:"Sismo M5,5 frente a Guatemala",p:"40 km al S de Puerto San José",lat:13.56,lon:-90.85,d:"2026-11-10",st:"Sin tsunami",f:[["M 5,5","60 km de profundidad"]],s:"Alerta verde. USGS registró 116 sismos de M4,5 o más en la semana.",src:[["USGS","https://earthquake.usgs.gov/earthquakes/eventpage/us7000txb8"]]},
+{id:"cempaka",feed:"eonet",cat:"clima",sev:1,t:"Tifón Cempaka",p:"Pacífico noroccidental, mar abierto",lat:29.1,lon:150.2,d:"2026-11-11",st:"Última posición",f:[],s:"Seguimiento de NASA EONET con datos del JTWC. Lejos de tierra en su última posición publicada.",src:[["NASA EONET","https://eonet.gsfc.nasa.gov/api/v3/events/EONET_26157"]]},
+{id:"pena",feed:"eonet",cat:"clima",sev:1,t:"Tormenta tropical Pena",p:"Pacífico central",lat:10.1,lon:-166.3,d:"2026-11-11",st:"Última posición",f:[],s:"Seguimiento de NASA EONET con datos del JTWC.",src:[["NASA EONET","https://eonet.gsfc.nasa.gov/api/v3/events/EONET_26158"]]},
+{id:"croacia",cat:"clima",sev:1,t:"Inundación en Croacia",p:"Zona de Rijeka",lat:45.44,lon:14.37,d:"2026-11-12",st:"Alerta verde",f:[],s:"Evento registrado por GDACS con impacto humanitario bajo.",src:[["GDACS","http://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104285"]]},
+{id:"wf-aus",cat:"clima",sev:1,t:"Incendios forestales en el norte de Australia",p:"Kimberley, Territorio del Norte y Queensland",lat:-19.08,lon:122.26,d:"2026-11-14",st:"Alerta verde",f:[["9","alertas GDACS, 11–14 nov"]],s:"Fuegos de sabana extensos en zonas poco pobladas.",src:[["GDACS","http://www.gdacs.org/report.aspx?eventtype=WF&eventid=1033859"]]},
+{id:"wf-sahel",cat:"clima",sev:1,t:"Incendios en el Sahel",p:"Burkina Faso, Níger, Nigeria y Benín",lat:13.56,lon:-1.48,d:"2026-11-14",st:"Alerta verde",f:[["9","alertas GDACS, 11–14 nov"]],s:"Quemas de estación seca detectadas por satélite.",src:[["GDACS","http://www.gdacs.org/report.aspx?eventtype=WF&eventid=1033853"]]},
+{id:"wf-ssd",cat:"clima",sev:1,t:"Incendios en Sudán del Sur y Sudán",p:"Alto Nilo y Bahr el Ghazal",lat:9.51,lon:31.42,d:"2026-11-14",st:"Alerta verde",f:[["5","alertas GDACS, 11–14 nov"]],s:"Quemas de estación seca detectadas por satélite.",src:[["GDACS","http://www.gdacs.org/report.aspx?eventtype=WF&eventid=1033877"]]},
+{id:"wf-bwa",cat:"clima",sev:1,t:"Incendios en Botsuana",p:"Botsuana",lat:-22.83,lon:24.99,d:"2026-11-12",st:"Alerta verde",f:[["2","alertas GDACS, 12 nov"]],s:"Detectados por satélite; impacto bajo.",src:[["GDACS","http://www.gdacs.org/report.aspx?eventtype=WF&eventid=1033817"]]}
+];
+
+/* ---------- carta de puntos ---------- */
+const LAND=[
+[[-168,66],[-156,71],[-140,70],[-125,70],[-110,68],[-95,69],[-82,73],[-78,68],[-82,63],[-93,60],[-93,57],[-82,52],[-79,55],[-77,62],[-65,60],[-60,54],[-56,51],[-65,47],[-60,46],[-66,44],[-70,42],[-74,40],[-76,35],[-81,31],[-80,25],[-83,29],[-90,29],[-97,27],[-97,21],[-94,18],[-90,21],[-87,21],[-88,16],[-83,15],[-83,10],[-79,9],[-77,7],[-80,7],[-85,10],[-91,14],[-96,16],[-105,20],[-110,23],[-113,31],[-117,32],[-121,35],[-124,40],[-124,48],[-130,54],[-140,60],[-152,59],[-165,55],[-158,59],[-165,62]],
+[[-55,82],[-30,83],[-18,76],[-22,70],[-40,65],[-44,60],[-52,65],[-55,70],[-68,77]],
+[[-77,7],[-72,12],[-62,10],[-52,5],[-50,0],[-44,-2],[-35,-6],[-37,-12],[-39,-18],[-42,-23],[-48,-27],[-53,-34],[-58,-38],[-65,-42],[-66,-48],[-69,-53],[-74,-52],[-74,-45],[-73,-37],[-71,-30],[-70,-18],[-76,-14],[-81,-5],[-80,0]],
+[[-17,15],[-17,21],[-13,27],[-10,31],[-6,35],[3,37],[10,37],[11,33],[20,32],[25,32],[32,31],[34,28],[37,21],[39,16],[43,12],[51,12],[48,5],[42,-1],[39,-6],[40,-15],[35,-20],[35,-24],[32,-29],[27,-34],[20,-35],[18,-32],[15,-25],[12,-17],[14,-10],[12,-5],[9,0],[9,4],[5,6],[-4,5],[-8,4],[-13,8]],
+[[-9,37],[-9,43],[-2,43.5],[-1,46],[-5,48],[2,51],[5,53],[8,54],[8,57],[11,56],[12,54],[20,55],[22,58],[28,60],[23,61],[21,64],[25,66],[22,66],[17,62],[18,60],[15,56],[12,56],[11,59],[5,59],[5,62],[13,66],[20,70],[28,71],[40,67],[44,66],[55,69],[68,69],[72,73],[85,74],[105,78],[113,74],[130,72],[150,71],[170,70],[180,66],[178,62],[165,60],[160,53],[156,51],[156,58],[143,59],[135,55],[140,50],[135,44],[130,42],[128,39],[126,35],[122,39],[118,38],[122,31],[120,26],[114,22],[108,21],[106,18],[109,13],[105,9],[100,13],[99,8],[103,2],[101,3],[98,8],[98,16],[94,17],[91,22],[87,21],[80,15],[80,10],[77,8],[73,17],[72,21],[67,24],[61,25],[57,26],[56,24],[59,22],[55,17],[45,13],[43,13],[39,21],[35,28],[34,31],[36,36],[30,36],[26,38],[26,40],[29,41],[41,41],[38,45],[33,45],[30,46],[28,42],[23,40],[23,37],[21,39],[19,42],[14,45],[12,44],[18,40],[16,38],[12,42],[8,44],[3,43],[0,39],[-2,37],[-5,36]],
+[[-5,50],[1,51],[0,53],[-2,56],[-3,58.5],[-6,57],[-3,54],[-5,52]],[[-10,52],[-6,52],[-6,55],[-10,54]],[[-24,65],[-14,66],[-14,64],[-22,63.5]],
+[[130,31],[132,34],[136,34],[140,35],[142,39],[141,41],[145,44],[141,45],[140,41],[139,38],[136,37],[132,35],[130,33]],
+[[114,-22],[122,-18],[129,-15],[131,-12],[136,-12],[136,-15],[141,-17],[142,-11],[146,-19],[153,-26],[153,-31],[150,-37],[146,-39],[140,-38],[135,-35],[131,-32],[124,-33],[117,-35],[115,-33]],
+[[173,-35],[178,-38],[175,-41],[173,-41],[174,-37]],[[172,-41],[174,-42],[171,-46],[167,-46],[168,-44]],
+[[49,-12],[50,-16],[47,-25],[44,-23],[44,-17]],
+[[95,5],[99,3],[104,-2],[106,-6],[102,-4],[98,1]],[[106,-6],[114,-7],[114,-8.5],[106,-7.5]],[[109,1],[114,5],[117,7],[119,5],[118,1],[116,-4],[111,-3]],
+[[119,-5],[120,1],[125,1.5],[122,-1],[123,-5],[120,-3]],[[131,-1],[138,-2],[145,-5],[150,-10],[146,-8],[141,-9],[138,-8],[133,-4]],
+[[120,18],[122,18],[124,13],[126,9],[126,6],[122,7],[123,11],[120,14]],[[80,9.5],[82,7],[80.5,6],[79.8,8]],
+[[-85,22],[-80,23],[-74,20],[-77,20]],[[-74,20],[-69,19.5],[-68.5,18.5],[-74,18]]
+];
+const LAT_T=80,LAT_B=-58,KMAX=48;
+const px=lon=>(lon+180)/360, py=lat=>(LAT_T-lat)/(LAT_T-LAT_B);
+
+/* Geometría real de países si la librería pública carga; si no, el contorno esquemático de arriba. */
+function decodeTopo(t){
+  const tr=t.transform,arcs=t.arcs.map(a=>{let x=0,y=0;return a.map(p=>{x+=p[0];y+=p[1];return tr?[x*tr.scale[0]+tr.translate[0],y*tr.scale[1]+tr.translate[1]]:[p[0],p[1]]})});
+  const ring=ids=>{const out=[];ids.forEach(i=>{let a=i<0?arcs[~i].slice().reverse():arcs[i];for(let n=out.length?1:0;n<a.length;n++)out.push(a[n])});return out};
+  const rings=[],obj=t.objects[Object.keys(t.objects)[0]];
+  obj.geometries.forEach(g=>{if(g.id==="ATA"||!g.arcs)return;
+    (g.type==="Polygon"?[g.arcs]:g.type==="MultiPolygon"?g.arcs:[]).forEach(poly=>poly.forEach(r=>rings.push(ring(r))))});
+  return rings;
+}
+let RINGS=LAND,DETAIL=false;
+try{const t=window.Datamap&&Datamap.prototype.worldTopo;if(t&&t.arcs){const r=decodeTopo(t);if(r.length>50){RINGS=r;DETAIL=true}}}catch(e){}
+const BOX=RINGS.map(r=>{let a=1e9,b=-1e9,c=1e9,d=-1e9;r.forEach(p=>{a=Math.min(a,p[0]);b=Math.max(b,p[0]);c=Math.min(c,p[1]);d=Math.max(d,p[1])});return [a,b,c,d]});
+
+/* vista: k = aumento, (cu,cv) = centro en coordenadas normalizadas del mundo */
+const view={k:1,cu:.5,cv:.5};let MW=0,MH=0,raf=0,anim=0;
+const SC=()=>view.k*MW;
+const sx=u=>MW/2+(u-view.cu)*SC(), sy=v=>MH/2+(v-view.cv)*SC()/2;
+function clampView(){
+  view.k=Math.min(KMAX,Math.max(1,view.k));
+  view.cu=Math.min(1,Math.max(0,view.cu));view.cv=Math.min(1,Math.max(0,view.cv));
+}
+let gesturing=false;
+function moveMarks(){document.querySelectorAll("#marks>button").forEach(b=>{b.style.left=sx(+b.dataset.u).toFixed(1)+"px";const x=sx(+b.dataset.u),y=sy(+b.dataset.v);b.style.top=y.toFixed(1)+"px";b.style.display=x>-12&&x<MW+12&&y>-12&&y<MH+12?"":"none"})}
+function refresh(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;clampView();drawMap();gesturing?moveMarks():layoutMarks()})}
+function zoomAt(x,y,f){
+  const u=view.cu+(x-MW/2)/SC(),v=view.cv+(y-MH/2)/(SC()/2);
+  view.k=Math.min(KMAX,Math.max(1,view.k*f));
+  view.cu=u-(x-MW/2)/SC();view.cv=v-(y-MH/2)/(SC()/2);refresh();
+}
+function flyTo(cu,cv,k){
+  cancelAnimationFrame(anim);k=Math.min(KMAX,Math.max(1,k));
+  if(matchMedia("(prefers-reduced-motion:reduce)").matches){view.k=k;view.cu=cu;view.cv=cv;refresh();return}
+  const a={k:view.k,cu:view.cu,cv:view.cv},t0=performance.now();
+  (function step(now){const t=Math.min(1,(now-t0)/380),e=1-Math.pow(1-t,3);
+    view.k=Math.exp(Math.log(a.k)+(Math.log(k)-Math.log(a.k))*e);view.cu=a.cu+(cu-a.cu)*e;view.cv=a.cv+(cv-a.cv)*e;refresh();
+    if(t<1)anim=requestAnimationFrame(step)})(t0);
+}
+function drawMap(){
+  const cv=document.getElementById("cv"),box=cv.parentElement;MW=box.clientWidth;MH=box.clientHeight;if(!MW)return;clampView();
+  const r=Math.min(window.devicePixelRatio||1,2);if(cv.width!==Math.round(MW*r)||cv.height!==Math.round(MH*r)){cv.width=Math.round(MW*r);cv.height=Math.round(MH*r)}
+  const g=cv.getContext("2d");g.setTransform(r,0,0,r,0,0);g.clearRect(0,0,MW,MH);
+  const css=getComputedStyle(document.documentElement),line=css.getPropertyValue("--line").trim(),dot=css.getPropertyValue("--dot").trim();
+  /* ventana visible en grados, para descartar lo que queda fuera */
+  const lonA=(view.cu-MW/2/SC())*360-180,lonB=(view.cu+MW/2/SC())*360-180,latA=LAT_T-(view.cv+MH/SC())*(LAT_T-LAT_B),latB=LAT_T-(view.cv-MH/SC())*(LAT_T-LAT_B);
+  const path=new Path2D();
+  RINGS.forEach((ring,i)=>{const b=BOX[i];if(b[1]<lonA||b[0]>lonB||b[3]<latA||b[2]>latB)return;
+    let prev=null;ring.forEach((p,n)=>{const X=sx(px(p[0])),Y=sy(py(p[1]));
+      if(n===0||Math.abs(p[0]-prev)>180)path.moveTo(X,Y);else path.lineTo(X,Y);prev=p[0]});path.closePath()});
+  g.fillStyle="rgba(120,150,200,.07)";g.fill(path,"evenodd");
+  /* trama de puntos anclada al mundo: se afina al acercar */
+  g.save();g.clip(path,"evenodd");
+  const st0=Math.max(3.4,MW/170),lvl=Math.pow(2,Math.floor(Math.log2(view.k))),step=st0*view.k/lvl,rad=Math.min(1.5,step*.26);
+  const ox=((sx(0)%step)+step)%step,oy=((sy(0)%step)+step)%step;
+  g.fillStyle=dot;g.beginPath();
+  for(let y=oy-step;y<MH+step;y+=step)for(let x=ox-step;x<MW+step;x+=step){g.moveTo(x+rad,y);g.arc(x,y,rad,0,6.3)}
+  g.fill();g.restore();
+  if(DETAIL||view.k>1.4){g.strokeStyle=DETAIL?"rgba(150,175,215,"+Math.min(.55,.18+view.k*.04)+")":"rgba(150,175,215,.3)";g.lineWidth=DETAIL?.7:1;g.stroke(path)}
+  const eq=sy(py(0));g.strokeStyle=line;g.globalAlpha=.6;g.setLineDash([2,4]);g.beginPath();g.moveTo(0,eq);g.lineTo(MW,eq);g.stroke();g.setLineDash([]);g.globalAlpha=1;
+  document.getElementById("mapkind").textContent=(DETAIL?"Mapa detallado":"Mapa esquemático")+" · ×"+(view.k<10?view.k.toFixed(1).replace(".",","):Math.round(view.k));
+  document.getElementById("zin").disabled=view.k>=KMAX-.01;document.getElementById("zout").disabled=document.getElementById("zreset").disabled=view.k<=1.01;
+}
+/* marcadores: los que quedan a menos de 15 px se agrupan en un círculo con su número */
+let CLUSTERS=[];
+function layoutMarks(){
+  if(!MW)return;
+  const pts=visible().filter(e=>e.lat!=null).map(e=>({e,x:sx(px(e.lon)),y:sy(py(e.lat))})).filter(p=>p.x>-12&&p.x<MW+12&&p.y>-12&&p.y<MH+12);
+  const used=new Set();CLUSTERS=[];let html="";
+  pts.forEach((p,i)=>{if(used.has(i))return;used.add(i);const m=[p];
+    pts.forEach((q,j)=>{if(!used.has(j)&&Math.hypot(q.x-p.x,q.y-p.y)<15){used.add(j);m.push(q)}});
+    if(m.length>1){const cx=m.reduce((a,q)=>a+q.x,0)/m.length,cy=m.reduce((a,q)=>a+q.y,0)/m.length,sv=Math.max(...m.map(q=>q.e.sev));
+      CLUSTERS.push(m.map(q=>q.e));
+      html+=`<button class="cl c${sv}" data-u="${(m.reduce((a,q)=>a+px(q.e.lon),0)/m.length).toFixed(5)}" data-v="${(m.reduce((a,q)=>a+py(q.e.lat),0)/m.length).toFixed(5)}" data-cl="${CLUSTERS.length-1}" style="left:${cx.toFixed(1)}px;top:${cy.toFixed(1)}px" aria-label="${m.length} eventos cercanos. Acercar">${m.length}</button>`;
+    }else{const e=p.e,lb=view.k>=3||sel===e.id?`<span class="lb">${esc(e.t.length>30?e.t.slice(0,29)+"…":e.t)}</span>`:"";
+      html+=`<button class="mk c${e.sev}${e.sev>=3?" pulse":""}${sel===e.id?" sel":""}" data-id="${e.id}" data-u="${px(e.lon).toFixed(5)}" data-v="${py(e.lat).toFixed(5)}" style="left:${p.x.toFixed(1)}px;top:${p.y.toFixed(1)}px;--s:${[0,9,11,14,18][e.sev]}px;z-index:${e.sev}" aria-label="${esc(SEV[e.sev]+": "+e.t)}">${lb}</button>`}
+  });
+  document.getElementById("marks").innerHTML=html;
+}
+function fitEvents(list){
+  const us=list.map(e=>px(e.lon)),vs=list.map(e=>py(e.lat)),du=Math.max(...us)-Math.min(...us),dv=Math.max(...vs)-Math.min(...vs);
+  let k=Math.min(MW*.55/Math.max(du*MW,1e-6),MH*.5/Math.max(dv*MW/2,1e-6));
+  k=Math.max(view.k*1.8,Math.min(KMAX,k));
+  flyTo((Math.max(...us)+Math.min(...us))/2,(Math.max(...vs)+Math.min(...vs))/2,k);
+}
+
+/* ---------- estado y pintado ---------- */
+let fCat="all",fSev=0,sel=null,fPer=3,order="rec";
+const PER=[[24,"24 h"],[72,"3 días"],[168,"7 días"],[Infinity,"Todo"]];
+const BUCKET=["Últimas 24 horas","Entre 1 y 3 días","Entre 3 y 7 días","Archivo: más de 7 días"];
+const hasTime=e=>e.d.length>10;
+const ts=e=>Math.min(Date.now(),Date.parse(hasTime(e)?e.d:e.d+"T23:59:00Z"));
+const ageH=e=>(Date.now()-ts(e))/36e5;
+const bucket=e=>{const a=ageH(e);return a<24?0:a<72?1:a<168?2:3};
+function ago(e){if(!hasTime(e))return fdate(e.d);const m=Math.max(0,Math.round(ageH(e)*60));return m<60?"hace "+m+" min":m<1440?"hace "+Math.round(m/60)+" h":"hace "+Math.round(m/1440)+" d"}
+const ftime=e=>hasTime(e)?", "+new Date(e.d).toISOString().slice(11,16)+" UTC":"";
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fdate=d=>new Date(d.length>10?d:d+"T12:00:00Z").toLocaleDateString("es-ES",{day:"numeric",month:"short",timeZone:"UTC"});
+function visible(){return EVENTS.filter(e=>(fCat==="all"||e.cat===fCat)&&(!fSev||e.sev===fSev)&&ageH(e)<PER[fPer][0])
+  .sort((a,b)=>(order==="rec"?bucket(a)-bucket(b):0)||b.sev-a.sev||ts(b)-ts(a))}
+function render(){
+  const inPer=EVENTS.filter(e=>ageH(e)<PER[fPer][0]),inCat=inPer.filter(e=>fCat==="all"||e.cat===fCat);
+  document.getElementById("tiles").innerHTML=[4,3,2,1].map(s=>{const n=inCat.filter(e=>e.sev===s).length;
+    return `<button class="tile c${s}${fSev&&fSev!==s?" off":""}" data-sev="${s}" aria-pressed="${fSev===s}"><b>${n}</b><span>${SEV[s]}</span></button>`}).join("");
+  const lt=EVENTS.filter(e=>ageH(e)<48).sort((a,b)=>ts(b)-ts(a)||b.sev-a.sev).slice(0,8);
+  document.getElementById("latest").innerHTML=lt.map(e=>`<button class="lt c${e.sev}" data-id="${e.id}"><i></i><span class="when">${ago(e)}</span><span class="what">${esc(e.t)}</span></button>`).join("")
+    ||'<p class="count" style="margin:4px 0 8px">Sin novedades de las últimas 48 horas en estos datos. Pulsa «Actualizar datos».</p>';
+  document.getElementById("ctl").innerHTML=
+    `<div><label>Periodo</label><span class="seg" role="group" aria-label="Periodo">${PER.map((p,i)=>`<button class="per" data-per="${i}" aria-pressed="${fPer===i}">${p[1]}</button>`).join("")}</span></div>
+     <div><label>Orden</label><span class="seg" role="group" aria-label="Orden"><button class="ord" data-ord="rec" aria-pressed="${order==="rec"}">Por fecha</button><button class="ord" data-ord="sev" aria-pressed="${order==="sev"}">Por gravedad</button></span></div>`;
+  document.getElementById("chips").innerHTML=[["all","Todo"],...CATS].map(([id,l])=>{const n=id==="all"?inPer.length:inPer.filter(e=>e.cat===id).length;
+    return `<button class="chip" data-cat="${id}" aria-pressed="${fCat===id}">${l}<em>${n}</em></button>`}).join("");
+  const list=visible();
+  document.getElementById("count").textContent=`${list.length} ${list.length===1?"evento":"eventos"} · ${order==="rec"?"agrupados por antigüedad, los más graves primero":"ordenados por gravedad"}`;
+  let last=-1;
+  document.getElementById("list").innerHTML=list.map(e=>{
+    let h="";if(order==="rec"&&bucket(e)!==last){last=bucket(e);h=`<h2 class="grp">${BUCKET[last]} <em>· ${list.filter(x=>bucket(x)===last).length}</em></h2>`}
+    return h+`
+    <article class="ev c${e.sev}${sel===e.id?" sel":""}" id="ev-${e.id}" data-id="${e.id}" tabindex="0">
+      <div class="tags"><span class="sev">${SEV[e.sev]}</span><span>${CATN[e.cat]}</span>${e.live?'<span class="lv">● en directo</span>':""}<span class="st">${esc(e.st)}</span></div>
+      <h3>${esc(e.t)}</h3>
+      <p class="where">${esc(e.p)} · dato del ${fdate(e.d)}${ftime(e)}</p>
+      ${e.f&&e.f.length?`<div class="figs">${e.f.map(f=>`<div><b>${esc(f[0])}</b><span>${esc(f[1])}</span></div>`).join("")}</div>`:""}
+      ${e.s?`<p class="sum">${esc(e.s)}</p>`:""}
+      <p class="src">Fuente: ${e.src.map(s=>`<a href="${esc(s[1])}" target="_blank" rel="noopener">${esc(s[0])}</a>`).join(" · ")}</p>
+    </article>`}).join("")||'<p class="count">Ningún evento con este filtro. Prueba con un periodo más amplio.</p>';
+  layoutMarks();
+  const s=EVENTS.find(e=>e.id===sel);
+  document.getElementById("maplabel").textContent=s?`${SEV[s.sev]} · ${s.t}`:"";
+}
+let dragged=false;
+document.addEventListener("click",ev=>{
+  if(ev.target.closest("a"))return;
+  let el;
+  if(ev.target.closest("#map")&&dragged){dragged=false;return}
+  if(el=ev.target.closest(".tile")){const s=+el.dataset.sev;fSev=fSev===s?0:s;render()}
+  else if(el=ev.target.closest(".chip")){fCat=el.dataset.cat;render()}
+  else if(el=ev.target.closest(".per")){fPer=+el.dataset.per;render()}
+  else if(el=ev.target.closest(".ord")){order=el.dataset.ord;render()}
+  else if(el=ev.target.closest("#refresh"))goLive(true)
+  else if(el=ev.target.closest(".lt")){sel=el.dataset.id;const e=EVENTS.find(x=>x.id===sel);
+    if(!visible().includes(e)){fCat="all";fSev=0;fPer=3}render();
+    const c=document.getElementById("ev-"+sel);if(c)c.scrollIntoView({behavior:"auto",block:"start"});if(e&&e.lat!=null)flyTo(px(e.lon),py(e.lat),Math.max(view.k,6))}
+  else if(el=ev.target.closest("#zin"))zoomAt(MW/2,MH/2,2)
+  else if(el=ev.target.closest("#zout"))zoomAt(MW/2,MH/2,.5)
+  else if(el=ev.target.closest("#zreset"))flyTo(.5,.5,1)
+  else if(el=ev.target.closest(".cl"))fitEvents(CLUSTERS[+el.dataset.cl])
+  else if(el=ev.target.closest(".mk")){sel=el.dataset.id;render();const c=document.getElementById("ev-"+sel);if(c)c.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"start"})}
+  else if(el=ev.target.closest(".ev")){sel=sel===el.dataset.id?null:el.dataset.id;render();
+    const e=EVENTS.find(x=>x.id===sel);if(e&&e.lat!=null)flyTo(px(e.lon),py(e.lat),Math.max(view.k,6))}
+});
+/* gestos del mapa: con el dedo (arrastrar y pellizcar), con ratón (arrastrar, rueda, doble clic) y con las flechas */
+(function(){
+  const map=document.getElementById("map");
+  const R=()=>map.getBoundingClientRect();
+  const pan=(dx,dy)=>{view.cu-=dx/SC();view.cv-=dy/(SC()/2);refresh()};
+  const done=()=>{gesturing=false;map.classList.remove("drag");refresh()};
+  /* dedo */
+  let T=[],moved=0;
+  const pts=e=>{const r=R();return [...e.touches].map(t=>({x:t.clientX-r.left,y:t.clientY-r.top}))};
+  const mid=a=>({x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2,d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)});
+  const tmove=e=>{
+    if(!T.length)return;if(e.cancelable)e.preventDefault();
+    const N=pts(e);if(!N.length)return;
+    if(N.length===1&&T.length===1){const dx=N[0].x-T[0].x,dy=N[0].y-T[0].y;moved+=Math.abs(dx)+Math.abs(dy);
+      if(moved>5){dragged=true;gesturing=true;pan(dx,dy)}}
+    else if(N.length>=2&&T.length>=2){dragged=true;gesturing=true;const a=mid(T),b=mid(N);pan(b.x-a.x,b.y-a.y);zoomAt(b.x,b.y,b.d/Math.max(a.d,1))}
+    T=N;
+  };
+  const tend=e=>{T=pts(e);if(dragged&&e.cancelable)e.preventDefault();
+    if(!T.length){e.target.removeEventListener("touchmove",tmove);e.target.removeEventListener("touchend",tend);e.target.removeEventListener("touchcancel",tend);
+      done();setTimeout(()=>dragged=false,80)}};
+  map.addEventListener("touchstart",e=>{
+    if(e.target.closest(".zoom,.pad"))return;
+    cancelAnimationFrame(anim);
+    if(e.touches.length===1){moved=0;dragged=false}
+    if(e.touches.length>1&&e.cancelable)e.preventDefault();
+    T=pts(e);
+    /* los eventos siguen llegando al elemento tocado aunque el mapa se redibuje */
+    e.target.addEventListener("touchmove",tmove,{passive:false});e.target.addEventListener("touchend",tend,{passive:false});e.target.addEventListener("touchcancel",tend,{passive:false});
+  },{passive:false});
+  /* ratón o lápiz */
+  let M=null,mm=0;
+  map.addEventListener("pointerdown",e=>{if(e.pointerType==="touch"||e.target.closest(".zoom,.pad"))return;cancelAnimationFrame(anim);M={x:e.clientX,y:e.clientY};mm=0;dragged=false});
+  window.addEventListener("pointermove",e=>{if(!M||e.pointerType==="touch")return;const dx=e.clientX-M.x,dy=e.clientY-M.y;M={x:e.clientX,y:e.clientY};mm+=Math.abs(dx)+Math.abs(dy);
+    if(mm>5){dragged=true;gesturing=true;map.classList.add("drag");pan(dx,dy)}});
+  const mend=e=>{if(!M||e.pointerType==="touch")return;M=null;done();if(dragged)setTimeout(()=>dragged=false,80)};
+  window.addEventListener("pointerup",mend);window.addEventListener("pointercancel",mend);
+  map.addEventListener("wheel",e=>{e.preventDefault();const r=R();zoomAt(e.clientX-r.left,e.clientY-r.top,Math.exp(-e.deltaY*(e.deltaMode?0.05:0.0022)))},{passive:false});
+  map.addEventListener("dblclick",e=>{if(e.target.closest("button"))return;const r=R(),x=e.clientX-r.left,y=e.clientY-r.top;flyTo(view.cu+(x-MW/2)/SC(),view.cv+(y-MH/2)/(SC()/2),view.k*2.5)});
+  /* flechas */
+  document.querySelector(".pad").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;e.stopPropagation();
+    flyTo(view.cu+(+b.dataset.dx)*.3*MW/SC(),view.cv+(+b.dataset.dy)*.3*MH/(SC()/2),view.k)});
+})();
+document.addEventListener("keydown",ev=>{const el=ev.target.closest&&ev.target.closest(".ev");if(el&&(ev.key==="Enter"||ev.key===" ")&&ev.target===el){ev.preventDefault();sel=el.dataset.id;render();document.getElementById("ev-"+sel).focus()}});
+
+function tick(){document.getElementById("clock").textContent="Ahora: "+new Date().toISOString().slice(0,16).replace("T"," ")+" UTC"}
+tick();setInterval(tick,20000);
+drawMap();render();
+new ResizeObserver(refresh).observe(document.getElementById("map"));
+document.getElementById("map").addEventListener("scroll",e=>{e.currentTarget.scrollTop=0;e.currentTarget.scrollLeft=0});
+
+/* ---------- capa en directo (solo fuera de Claude; aquí el navegador la bloquea y queda la instantánea) ---------- */
+async function getJSON(u){const c=new AbortController(),t=setTimeout(()=>c.abort(),12000);try{const r=await fetch(u,{signal:c.signal});if(!r.ok)throw 0;return await r.json()}finally{clearTimeout(t)}}
+const mfmt=m=>m.toFixed(1).replace(".",",");
+const FEEDS={
+  "USGS":async()=>{
+    const [wk,sig]=await Promise.all([getJSON("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson"),getJSON("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_week.geojson")]);
+    const seen=new Set(),sg=new Set(sig.features.map(q=>q.id)),out=[];
+    [...sig.features,...wk.features].forEach(q=>{if(seen.has(q.id))return;seen.add(q.id);const p=q.properties,m=p.mag,c=q.geometry.coordinates,recent=Date.now()-p.time<864e5;
+      if(!(sg.has(q.id)||m>=5.5||(recent&&m>=5)))return;
+      let sev=m>=7?4:m>=6.5?3:m>=6?2:1;if(p.alert==="red")sev=4;else if(p.alert==="orange")sev=Math.max(sev,3);if(p.tsunami)sev=Math.max(sev,2);
+      out.push({id:"q-"+q.id,live:true,cat:"geo",sev,t:"Sismo M"+mfmt(m),p:p.place||"",lat:c[1],lon:c[0],d:new Date(p.time).toISOString(),st:p.tsunami?"Aviso de tsunami":"Sin tsunami",
+        f:[["M "+mfmt(m),Math.round(c[2])+" km de profundidad"]],s:p.alert?"Alerta "+({green:"verde",yellow:"amarilla",orange:"naranja",red:"roja"}[p.alert]||p.alert)+" de USGS.":"",src:[["USGS",p.url]]})});
+    return out},
+  "NASA EONET":async()=>{
+    const j=await getJSON("https://eonet.gsfc.nasa.gov/api/v3/events?status=open&days=10&limit=80");
+    const map={severeStorms:["clima","Tormenta severa"],volcanoes:["geo","Volcán"],wildfires:["clima","Incendio"],floods:["clima","Inundación"]};
+    return j.events.filter(e=>e.categories&&e.categories[0]&&map[e.categories[0].id]&&e.geometry&&e.geometry.length).map(e=>{const g=e.geometry[e.geometry.length-1],m=map[e.categories[0].id],c=g.type==="Point"?g.coordinates:g.coordinates[0][0];
+      return {id:"n-"+e.id,live:true,cat:m[0],sev:1,t:e.title,p:m[1]+" · seguimiento NASA",lat:c[1],lon:c[0],d:new Date(g.date).toISOString(),st:"Abierto",f:[],s:"",src:[["NASA EONET",e.link]]}})},
+  "GDACS":async()=>{
+    const iso=t=>new Date(t).toISOString().slice(0,10);
+    const j=await getJSON("https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH?eventlist=EQ;TC;FL;VO;WF;DR&alertlevel=orange;red&fromdate="+iso(Date.now()-7*864e5)+"&todate="+iso(Date.now()+864e5));
+    const T={EQ:["geo","Sismo"],TC:["clima","Ciclón tropical"],FL:["clima","Inundación"],VO:["geo","Volcán"],WF:["clima","Incendio forestal"],DR:["clima","Sequía"]},seen=new Set(),out=[];
+    (j.features||[]).forEach(f=>{const p=f.properties||{},k=p.eventtype+p.eventid;if(seen.has(k)||!T[p.eventtype]||!f.geometry)return;seen.add(k);
+      const c=f.geometry.type==="Point"?f.geometry.coordinates:null;if(!c)return;const red=/red/i.test(p.alertlevel||"");
+      out.push({id:"g-"+k,live:true,cat:T[p.eventtype][0],sev:red?4:3,t:T[p.eventtype][1]+": "+(p.name||p.country||""),p:(p.country||"")+" · alerta "+(red?"roja":"naranja")+" GDACS",lat:c[1],lon:c[0],
+        d:new Date((p.todate||p.fromdate)+(/Z$/.test(p.todate||p.fromdate)?"":"Z")).toISOString(),st:"Alerta "+(red?"roja":"naranja"),f:[],s:"",src:[["GDACS",(p.url&&p.url.report)||"https://www.gdacs.org/"]]})});
+    return out},
+  "OMS":async()=>{
+    const j=await getJSON("https://www.who.int/api/news/diseaseoutbreaknews?sf_culture=en&$orderby=PublicationDateAndTime%20desc&$top=10&$select=Title,ItemDefaultUrl,PublicationDateAndTime");
+    return (j.value||[]).map(v=>({id:"w-"+v.ItemDefaultUrl,live:true,cat:"salud",sev:2,t:v.Title,p:"Parte de brotes de la OMS (en inglés)",lat:null,lon:null,d:new Date(v.PublicationDateAndTime).toISOString(),st:"Parte OMS",f:[],s:"",
+      src:[["OMS","https://www.who.int/emergencies/disease-outbreak-news/item"+v.ItemDefaultUrl]]}))},
+  "ReliefWeb":async()=>{
+    const j=await getJSON("https://api.reliefweb.int/v1/disasters?appname=monitor-emergencias&limit=20&sort[]=date:desc&fields[include][]=name&fields[include][]=date&fields[include][]=primary_country&fields[include][]=primary_type&fields[include][]=url_alias&fields[include][]=status");
+    return (j.data||[]).filter(x=>x.fields&&x.fields.status!=="past").map(x=>{const f=x.fields,ty=(f.primary_type&&f.primary_type.name)||"",loc=f.primary_country&&f.primary_country.location;
+      return {id:"r-"+x.id,live:true,cat:/epidemic/i.test(ty)?"salud":/earthquake|volcano|tsunami/i.test(ty)?"geo":"clima",sev:2,t:f.name,p:((f.primary_country&&f.primary_country.name)||"")+" · ReliefWeb (ONU, en inglés)",
+        lat:loc?loc.lat:null,lon:loc?loc.lon:null,d:new Date((f.date&&(f.date.event||f.date.created))||Date.now()).toISOString(),st:f.status==="alert"?"Alerta":"En curso",f:[],s:"",src:[["ReliefWeb",f.url_alias||"https://reliefweb.int/disasters"]]}})}
+};
+const FEEDKEY={"USGS":"usgs","NASA EONET":"eonet"};
+let busy=false;
+async function goLive(manual){
+  if(busy)return;busy=true;
+  const btn=document.getElementById("refresh"),srcs=document.getElementById("srcs");
+  btn.disabled=true;btn.textContent="↻ Actualizando…";
+  const names=Object.keys(FEEDS),res=await Promise.allSettled(names.map(n=>FEEDS[n]()));
+  const ok=[];
+  res.forEach((r,i)=>{const n=names[i];if(r.status!=="fulfilled"||!Array.isArray(r.value))return;ok.push(n);
+    r.value.forEach(e=>e.feedname=n);
+    EVENTS=EVENTS.filter(e=>e.feedname!==n&&!(FEEDKEY[n]&&e.feed===FEEDKEY[n])).concat(r.value.filter(e=>!isNaN(Date.parse(e.d))))});
+  const hora=new Date().toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"});
+  if(ok.length){
+    document.getElementById("pill").classList.add("live");
+    document.getElementById("pilltxt").textContent="En directo · actualizado a las "+hora;
+    srcs.textContent=names.map(n=>n+(ok.includes(n)?" ✓":" ✗")).join(" · ")+" · noticias: "+SNAP;
+  }else{
+    srcs.textContent="Sin conexión con las fuentes desde aquí ("+hora+"). Se muestran los datos del "+SNAP+".";
+  }
+  btn.disabled=false;btn.textContent="↻ Actualizar datos";busy=false;render();
+}
+goLive();setInterval(goLive,300000);
+</script>
+</body>
+</html>
