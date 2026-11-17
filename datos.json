@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-11-17T05:10:00Z",
+ "actualizado": "2026-11-17T05:25:00Z",
  "eventos": [
   {
    "id": "ebola-rdc",
@@ -246,33 +246,37 @@
    "sev": 3,
    "t": "Ciclón tropical severo Xavier, categoría 3",
    "p": "Islas Cook del Norte",
-   "lat": -9.5,
-   "lon": -161.5,
-   "d": "2026-11-16T23:31:00Z",
+   "lat": -9.1,
+   "lon": -163,
+   "d": "2026-11-17T02:55:00Z",
    "st": "Activo",
    "f": [
     [
      "Cat. 3",
-     "previsto Cat. 4 en 24 h"
+     "sigue intensificándose"
     ],
     [
-     "120 km/h",
-     "viento sostenido"
+     "155 km/h",
+     "viento medio cerca del centro"
     ],
     [
-     "170 km/h",
+     "220 km/h",
      "rachas"
     ]
    ],
-   "s": "Pasó de categoría 1 a 3 en un día y sigue intensificándose. Aviso de temporal en Manihiki y Rakahanga y alerta de ciclón en Pukapuka y Nassau. Se espera que alcance su máximo en mar abierto.",
+   "s": "A las 00:00 UTC estaba a unos 260 km al noroeste de Manihiki, con 965 hPa, y se desplazaba despacio hacia el suroeste. Sigue el aviso de temporal en Manihiki y Rakahanga, con rachas de hasta 120 km/h y riesgo de inundación costera en pleamar. Hay alerta de temporal para Nassau, Suwarrow y Pukapuka a partir de mañana.",
    "src": [
     [
-     "PMN (Servicio Meteorológico de Fiyi)",
+     "Servicio Meteorológico de Fiyi, boletín n.º 17",
+     "https://www.met.gov.fj/warnings/"
+    ],
+    [
+     "PMN",
      "https://pmn.co.nz/read/pacific-region/cyclone-xavier-set-to-strengthen-to-category-4-near-cook-islands"
     ],
     [
-     "RNZ",
-     "https://www.rnz.co.nz/news/pacific/2633910/cyclone-xavier-intensifies-to-category-2-alert-issued-for-pukapuka-and-nassau"
+     "Samoa Observer",
+     "https://www.samoaobserver.ws/category/samoa/123144"
     ]
    ]
   },
@@ -328,7 +332,7 @@
      "Cercanías y Rodalies"
     ]
    ],
-   "s": "Empezó a medianoche en Renfe, Adif, Iryo y Ouigo para reclamar más seguridad en la red y refuerzo de plantillas. Renfe pide comprobar cada tren antes de viajar. Adif tiene otro paro de 24 horas el jueves 19.",
+   "s": "Empezó a medianoche en Renfe, Adif, Iryo y Ouigo para reclamar más seguridad en la red; el sindicato de maquinistas Semaf ha convocado su propio paro el mismo día. Ouigo ha cancelado 10 de sus 27 trenes e Iryo prevé operar el 70 %. Mercancías tiene mínimos del 26 %. Renfe pide comprobar cada tren antes de viajar. Adif tiene otro paro de 24 horas el jueves 19.",
    "src": [
     [
      "EFE vía Infobae",
@@ -373,6 +377,33 @@
     [
      "BusinessWorld (Reuters)",
      "https://bworldonline.com/world/2026/11/17/794432/us-air-travel-recovery-stumbles-on-united-pause-as-funding-fight-brews/"
+    ]
+   ]
+  },
+  {
+   "id": "bancos-eeuu-16n",
+   "cat": "servicios",
+   "sev": 2,
+   "t": "Fallos en la banca en línea de grandes bancos de EE. UU.",
+   "p": "Estados Unidos",
+   "lat": 40.71,
+   "lon": -74.01,
+   "d": "2026-11-16",
+   "st": "Reciente",
+   "f": [],
+   "s": "El lunes 16, clientes de Chase, Bank of America, Wells Fargo y U.S. Bank, y usuarios de Zelle, comunicaron problemas para acceder a sus cuentas en línea. Chase lo atribuyó a un fallo técnico, no a un ciberataque, y dijo que algunas operaciones tardaban más de lo habitual sin que se perdiera el acceso a los fondos. Los medios consultados no dan una causa común ni confirman la hora de cierre.",
+   "src": [
+    [
+     "LiveNOW from Fox",
+     "https://www.livenowfox.com/news/chase-bank-america-wells-fargo-outage"
+    ],
+    [
+     "Fox News",
+     "https://www.foxnews.com/us/america-hits-tech-wall-outages-cripple-email-ground-flights-disrupt-major-banks"
+    ],
+    [
+     "LAist",
+     "https://laist.com/brief/news/customers-at-major-banks-report-difficulty-accessing-accounts-online"
     ]
    ]
   },
