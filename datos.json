@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-11-17T05:25:00Z",
+ "actualizado": "2026-11-17T06:26:39Z",
  "eventos": [
   {
    "id": "ebola-rdc",
@@ -311,36 +311,40 @@
   {
    "id": "huelga-17n",
    "cat": "transporte",
-   "sev": 2,
+   "sev": 3,
    "t": "Huelga ferroviaria en toda España",
    "p": "España · hoy martes 17 nov, hasta las 23:59",
    "lat": 40.4,
    "lon": -3.7,
-   "d": "2026-11-17T00:00:00Z",
+   "d": "2026-11-17T06:07:00Z",
    "st": "En curso",
    "f": [
+    [
+     "≈50 %",
+     "trenes previstos que circulan en Rodalies a primera hora"
+    ],
     [
      "72 %",
      "mínimos AVE y Larga Distancia"
     ],
     [
-     "65 %",
-     "Media Distancia"
-    ],
-    [
-     "50–75 %",
-     "Cercanías y Rodalies"
+     "66 %",
+     "mínimos Rodalies en hora punta"
     ]
    ],
-   "s": "Empezó a medianoche en Renfe, Adif, Iryo y Ouigo para reclamar más seguridad en la red; el sindicato de maquinistas Semaf ha convocado su propio paro el mismo día. Ouigo ha cancelado 10 de sus 27 trenes e Iryo prevé operar el 70 %. Mercancías tiene mínimos del 26 %. Renfe pide comprobar cada tren antes de viajar. Adif tiene otro paro de 24 horas el jueves 19.",
+   "s": "Empezó a medianoche en Renfe, Adif, operadoras privadas y mercancías, convocada por Semaf, CCOO, UGT, CGT, SF y Alferro para reclamar más seguridad en la red. A primera hora, Rodalies informa de que los maquinistas incumplen los servicios mínimos y solo circula cerca de la mitad de los trenes previstos; recomienda buscar transporte alternativo. Mínimos: 65 % en Media Distancia y 26 % en mercancías.",
    "src": [
+    [
+     "Diari Més (ACN)",
+     "https://www.diarimes.com/es/actualidad/cataluna/261117/maquinistas-alrededores-incumplen-servicios-minimos-circulan-mitad-trenes-previstos_243099.html"
+    ],
+    [
+     "Crónica Global",
+     "https://cronicaglobal.elespanol.com/vida/20261117/huelga-ferroviaria-arranca-incumplimientos-servicios-minimos-rodalies/1003742812666_0.html"
+    ],
     [
      "EFE vía Infobae",
      "https://www.infobae.com/espana/agencias/2026/11/17/el-sector-ferroviario-protagoniza-hoy-otra-huelga-para-exigir-mayor-seguridad-en-la-red/"
-    ],
-    [
-     "elDiario.es",
-     "https://www.eldiario.es/economia/son-servicios-minimos-huelga-ferroviaria-martes-17-noviembre_1_13666598.html"
     ]
    ]
   },
@@ -528,30 +532,6 @@
    ]
   },
   {
-   "id": "shamonda",
-   "cat": "salud",
-   "sev": 2,
-   "t": "Primer caso humano de virus Shamonda",
-   "p": "Francia",
-   "lat": 46.6,
-   "lon": 2.4,
-   "d": "2026-11-02",
-   "st": "En vigilancia",
-   "f": [
-    [
-     "1",
-     "caso confirmado, primero en el mundo"
-    ]
-   ],
-   "s": "La OMS considera que aún no puede valorar el riesgo. Lo más probable es la transmisión por vector; se investiga la vía alimentaria. La transfusión parece descartada.",
-   "src": [
-    [
-     "OMS DON623",
-     "https://www.who.int/emergencies/disease-outbreak-news/item/2026-DON623"
-    ]
-   ]
-  },
-  {
    "id": "sumatra",
    "cat": "clima",
    "sev": 2,
@@ -642,25 +622,6 @@
     [
      "Hosteltur",
      "https://www.hosteltur.com/179889_balance-de-la-huelga-11n-casi-300-vuelos-cancelados-y-sin-apenas-impacto-en-hoteles-y-agencias.html"
-    ]
-   ]
-  },
-  {
-   "id": "kilauea",
-   "cat": "geo",
-   "sev": 1,
-   "t": "Kīlauea: termina el episodio 56 y baja la alerta",
-   "p": "Hawái, EE. UU.",
-   "lat": 19.42,
-   "lon": -155.29,
-   "d": "2026-11-06",
-   "st": "En pausa",
-   "f": [],
-   "s": "El observatorio rebajó el nivel de «vigilancia» a «aviso» y el código de aviación de naranja a amarillo.",
-   "src": [
-    [
-     "USGS HVO",
-     "https://volcanoes.usgs.gov/hans-public/notice/DOI-USGS-HVO-2026-11-07T00:31:16+00:00"
     ]
    ]
   },
