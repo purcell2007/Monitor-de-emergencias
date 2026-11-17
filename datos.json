@@ -1,0 +1,752 @@
+{
+ "actualizado": "2026-11-17T05:10:00Z",
+ "eventos": [
+  {
+   "id": "ebola-rdc",
+   "cat": "salud",
+   "sev": 4,
+   "t": "Ébola (virus Bundibugyo) en la RD del Congo",
+   "p": "Ituri y otras 7 provincias, RDC",
+   "lat": 1.56,
+   "lon": 30.25,
+   "d": "2026-11-11",
+   "st": "Activo",
+   "f": [
+    [
+     "≈11.000",
+     "casos confirmados"
+    ],
+    [
+     "+5.300",
+     "muertes"
+    ],
+    [
+     "8",
+     "provincias"
+    ]
+   ],
+   "s": "Sigue siendo emergencia de salud pública de importancia internacional. La transmisión baja en algunas zonas, pero aparecen focos nuevos y la inseguridad frena la respuesta. Es ya el mayor brote de ébola registrado en el país.",
+   "src": [
+    [
+     "OMS, Director General (11 nov)",
+     "https://www.who.int/news-room/speeches/item/who-director-general-s-opening-remarks-at-the-member-state-briefing-on-ebola-outbreak-in-the-democratic-republic-of-the-congo---11-november-2026"
+    ],
+    [
+     "OMS DON625",
+     "https://www.who.int/emergencies/disease-outbreak-news/item/2026-DON625"
+    ]
+   ]
+  },
+  {
+   "id": "faa",
+   "cat": "transporte",
+   "sev": 2,
+   "t": "Parada nacional de vuelos de la FAA: vuelta a la normalidad",
+   "p": "Estados Unidos",
+   "lat": 39,
+   "lon": -98,
+   "d": "2026-11-17",
+   "st": "Normalizado",
+   "f": [
+    [
+     "+18.000",
+     "vuelos cancelados en tres días"
+    ],
+    [
+     "≈28.000",
+     "vuelos retrasados"
+    ],
+    [
+     "≈300",
+     "cancelados el lunes por la mañana"
+    ]
+   ],
+   "s": "El viernes 13 la FAA detuvo casi todas las salidas del país durante más de cuatro horas por un fallo de comunicaciones entre centros de control. Se sospecha de un router instalado en una tarea de mantenimiento; la investigación sigue abierta. El lunes el tráfico volvió prácticamente a la normalidad.",
+   "src": [
+    [
+     "BusinessWorld (Reuters)",
+     "https://bworldonline.com/world/2026/11/17/794432/us-air-travel-recovery-stumbles-on-united-pause-as-funding-fight-brews/"
+    ],
+    [
+     "NBC News (FlightAware)",
+     "https://www.nbcnews.com/news/us-news/flights-air-traffic-delays-groundstop-faa-duffy-rcna609545"
+    ],
+    [
+     "ABC News",
+     "https://abcnews.com/US/live-updates/faa-ground-stop-live-updates-hundreds-flights-canceled/?id=138125140"
+    ]
+   ]
+  },
+  {
+   "id": "colera-rdc",
+   "cat": "salud",
+   "sev": 3,
+   "t": "Cólera en la RD del Congo, el peor brote en décadas",
+   "p": "RD del Congo",
+   "lat": -4.32,
+   "lon": 15.31,
+   "d": "2026-11-04",
+   "st": "Activo",
+   "f": [
+    [
+     "+60.000",
+     "casos en 2026"
+    ],
+    [
+     "1.800",
+     "muertes"
+    ]
+   ],
+   "s": "Coincide con el brote de ébola y con una crisis alimentaria que la ONU prevé en niveles récord.",
+   "src": [
+    [
+     "OMS, rueda de prensa (4 nov)",
+     "https://www.who.int/news-room/speeches/item/who-director-general-s-opening-remarks-at-the-media-briefing---4-november-2026"
+    ]
+   ]
+  },
+  {
+   "id": "gaza",
+   "cat": "human",
+   "sev": 3,
+   "t": "Gaza: inundaciones sobre los campamentos de desplazados",
+   "p": "Franja de Gaza",
+   "lat": 31.4,
+   "lon": 34.4,
+   "d": "2026-11-13",
+   "st": "Activo",
+   "f": [
+    [
+     "≈226.000",
+     "personas afectadas"
+    ],
+    [
+     "+40.000",
+     "refugios dañados"
+    ]
+   ],
+   "s": "Las lluvias desde el 6 de noviembre anegaron tiendas, derribaron edificios ya dañados e interrumpieron servicios esenciales. OCHA pide más permisos de entrada para material de refugio.",
+   "src": [
+    [
+     "OCHA (13 nov)",
+     "https://www.ochaopt.org/content/humanitarian-situation-report-13-november-2026"
+    ],
+    [
+     "OCHA, lluvias (8 nov)",
+     "https://www.ochaopt.org/content/humanitarian-situation-report-heavy-rains-gaza-strip-8-november-2026"
+    ]
+   ]
+  },
+  {
+   "id": "ucrania",
+   "cat": "human",
+   "sev": 3,
+   "t": "Ucrania: reservas de refugio de emergencia casi agotadas",
+   "p": "Ucrania",
+   "lat": 49,
+   "lon": 32,
+   "d": "2026-11-13",
+   "st": "Activo",
+   "f": [
+    [
+     "10,8 M",
+     "personas necesitan ayuda"
+    ],
+    [
+     "4,1 M",
+     "cubiertas por el plan 2026"
+    ]
+   ],
+   "s": "Los socios humanitarios siguen respondiendo a los ataques con existencias muy bajas de material de refugio, a las puertas del invierno.",
+   "src": [
+    [
+     "OCHA Ucrania",
+     "https://www.unocha.org/ukraine"
+    ]
+   ]
+  },
+  {
+   "id": "sudan-sur",
+   "cat": "human",
+   "sev": 3,
+   "t": "Sudán del Sur: desnutrición aguda e inseguridad",
+   "p": "Sudán del Sur",
+   "lat": 6.9,
+   "lon": 31.3,
+   "d": "2026-11-02",
+   "st": "Activo",
+   "f": [
+    [
+     "1,2 M",
+     "embarazadas y lactantes con desnutrición aguda"
+    ]
+   ],
+   "s": "Economía en caída, precios altos e inundaciones que destruyeron cosechas y caminos. El acceso humanitario está limitado por los combates.",
+   "src": [
+    [
+     "Center for Disaster Philanthropy (datos OCHA)",
+     "https://disasterphilanthropy.org/blog/what-were-watching-weekly-disaster-update-november-2-2026/"
+    ]
+   ]
+  },
+  {
+   "id": "rdc-hambre",
+   "cat": "human",
+   "sev": 3,
+   "t": "RD del Congo: inseguridad alimentaria en cifras récord",
+   "p": "Este de la RDC",
+   "lat": -2.5,
+   "lon": 28.8,
+   "d": "2026-11-13",
+   "st": "Activo",
+   "f": [],
+   "s": "Un comunicado conjunto de agencias de la ONU advierte de que el conflicto y los brotes de enfermedad agravan el hambre y de que se prevé un número récord de personas en inseguridad alimentaria aguda.",
+   "src": [
+    [
+     "OMS, situación ébola RDC",
+     "https://www.who.int/emergencies/situations/ebola-outbreak---drc-2026"
+    ]
+   ]
+  },
+  {
+   "id": "mayon",
+   "cat": "geo",
+   "sev": 3,
+   "t": "Volcán Mayón en nivel de alerta 3",
+   "p": "Albay, Filipinas",
+   "lat": 13.26,
+   "lon": 123.69,
+   "d": "2026-11-13",
+   "st": "Activo",
+   "f": [
+    [
+     "3.903",
+     "evacuados (4 nov)"
+    ],
+    [
+     "6 km",
+     "zona de exclusión"
+    ]
+   ],
+   "s": "Magma cerca del cráter y riesgo de erupción peligrosa. El 13 de noviembre se detectó un nuevo domo de lava; las autoridades no descartan subir al nivel 4.",
+   "src": [
+    [
+     "Daily Tribune",
+     "https://tribune.net.ph/2026/11/03/mayon-spews-ash-plume-displaces-nearly-4k-residents"
+    ],
+    [
+     "Smithsonian/USGS, informe semanal",
+     "https://volcano.si.edu/reports_weekly.cfm"
+    ]
+   ]
+  },
+  {
+   "id": "xavier",
+   "cat": "clima",
+   "sev": 3,
+   "t": "Ciclón tropical severo Xavier, categoría 3",
+   "p": "Islas Cook del Norte",
+   "lat": -9.5,
+   "lon": -161.5,
+   "d": "2026-11-16T23:31:00Z",
+   "st": "Activo",
+   "f": [
+    [
+     "Cat. 3",
+     "previsto Cat. 4 en 24 h"
+    ],
+    [
+     "120 km/h",
+     "viento sostenido"
+    ],
+    [
+     "170 km/h",
+     "rachas"
+    ]
+   ],
+   "s": "Pasó de categoría 1 a 3 en un día y sigue intensificándose. Aviso de temporal en Manihiki y Rakahanga y alerta de ciclón en Pukapuka y Nassau. Se espera que alcance su máximo en mar abierto.",
+   "src": [
+    [
+     "PMN (Servicio Meteorológico de Fiyi)",
+     "https://pmn.co.nz/read/pacific-region/cyclone-xavier-set-to-strengthen-to-category-4-near-cook-islands"
+    ],
+    [
+     "RNZ",
+     "https://www.rnz.co.nz/news/pacific/2633910/cyclone-xavier-intensifies-to-category-2-alert-issued-for-pukapuka-and-nassau"
+    ]
+   ]
+  },
+  {
+   "id": "ecuador",
+   "cat": "clima",
+   "sev": 3,
+   "t": "Inundaciones por El Niño en Ecuador",
+   "p": "Guayaquil y Milagro, Ecuador",
+   "lat": -2.17,
+   "lon": -79.92,
+   "d": "2026-11-16",
+   "st": "Activo",
+   "f": [
+    [
+     "14",
+     "muertes en el país"
+    ],
+    [
+     "172,8 mm",
+     "lluvia en Milagro"
+    ]
+   ],
+   "s": "Dos fallecidos más en Guayaquil elevan el balance nacional de la temporada de lluvias.",
+   "src": [
+    [
+     "The Watchers",
+     "https://watchers.news/2026/11/16/tropical-cyclone-xavier-northern-cook-islands-manihiki-rakahanga-november-2026"
+    ]
+   ]
+  },
+  {
+   "id": "huelga-17n",
+   "cat": "transporte",
+   "sev": 2,
+   "t": "Huelga ferroviaria en toda España",
+   "p": "España · hoy martes 17 nov, hasta las 23:59",
+   "lat": 40.4,
+   "lon": -3.7,
+   "d": "2026-11-17T00:00:00Z",
+   "st": "En curso",
+   "f": [
+    [
+     "72 %",
+     "mínimos AVE y Larga Distancia"
+    ],
+    [
+     "65 %",
+     "Media Distancia"
+    ],
+    [
+     "50–75 %",
+     "Cercanías y Rodalies"
+    ]
+   ],
+   "s": "Empezó a medianoche en Renfe, Adif, Iryo y Ouigo para reclamar más seguridad en la red y refuerzo de plantillas. Renfe pide comprobar cada tren antes de viajar. Adif tiene otro paro de 24 horas el jueves 19.",
+   "src": [
+    [
+     "EFE vía Infobae",
+     "https://www.infobae.com/espana/agencias/2026/11/17/el-sector-ferroviario-protagoniza-hoy-otra-huelga-para-exigir-mayor-seguridad-en-la-red/"
+    ],
+    [
+     "elDiario.es",
+     "https://www.eldiario.es/economia/son-servicios-minimos-huelga-ferroviaria-martes-17-noviembre_1_13666598.html"
+    ]
+   ]
+  },
+  {
+   "id": "united",
+   "cat": "transporte",
+   "sev": 2,
+   "t": "United Airlines: caída de sistemas informáticos",
+   "p": "Estados Unidos",
+   "lat": 41.9,
+   "lon": -87.6,
+   "d": "2026-11-16T22:19:00Z",
+   "st": "Resuelto",
+   "f": [
+    [
+     "418",
+     "vuelos retrasados"
+    ],
+    [
+     "21",
+     "cancelados"
+    ],
+    [
+     "≈1 h",
+     "salidas detenidas"
+    ]
+   ],
+   "s": "Un fallo tecnológico propio de la aerolínea, sin relación conocida con la parada de la FAA, detuvo sus salidas durante cerca de una hora. Los vuelos en el aire no se vieron afectados.",
+   "src": [
+    [
+     "FTN News (FlightAware)",
+     "https://ftnnews.com/travel-news/aviation/united-airlines-tech-outage-faa-ground-stop-2026/"
+    ],
+    [
+     "BusinessWorld (Reuters)",
+     "https://bworldonline.com/world/2026/11/17/794432/us-air-travel-recovery-stumbles-on-united-pause-as-funding-fight-brews/"
+    ]
+   ]
+  },
+  {
+   "id": "microsoft",
+   "cat": "servicios",
+   "sev": 2,
+   "t": "Caída mundial de Microsoft 365",
+   "p": "Más de 70 países",
+   "lat": 47.67,
+   "lon": -122.12,
+   "d": "2026-11-14",
+   "st": "Resuelto",
+   "f": [
+    [
+     "+70",
+     "países afectados"
+    ],
+    [
+     "12–14 nov",
+     "duración"
+    ],
+    [
+     "≈130.000",
+     "avisos en EE. UU. en el pico"
+    ]
+   ],
+   "s": "Outlook, Teams y Copilot dejaron sin correo a gobiernos, hospitales, tribunales, bancos y aerolíneas. Microsoft lo atribuye a una ampliación de capacidad de red, descarta un ciberataque y publicará un informe preliminar.",
+   "src": [
+    [
+     "GeekWire",
+     "https://www.geekwire.com/2026/i-hope-this-email-finds-you-microsoft-declares-outage-over-as-the-world-digs-out-of-its-inbox/"
+    ],
+    [
+     "AP vía WEAU",
+     "https://www.weau.com/2026/11/14/microsoft-says-services-fully-restored-after-hourslong-global-outage/?outputType=amp"
+    ]
+   ]
+  },
+  {
+   "id": "ebola-kenia",
+   "cat": "salud",
+   "sev": 2,
+   "t": "Ébola importado en Kenia",
+   "p": "Kenia",
+   "lat": -1.29,
+   "lon": 36.82,
+   "d": "2026-11-09",
+   "st": "Contenido",
+   "f": [
+    [
+     "9",
+     "casos confirmados"
+    ],
+    [
+     "2",
+     "muertes"
+    ]
+   ],
+   "s": "Todos los casos enlazan con el primero. El último se notificó el 20 de octubre y los contactos terminaron su seguimiento el 11 de noviembre.",
+   "src": [
+    [
+     "ECDC (10 nov)",
+     "https://www.ecdc.europa.eu/en/public-health-events/2026-eip-00026/2026-11-10"
+    ]
+   ]
+  },
+  {
+   "id": "ebola-nigeria",
+   "cat": "salud",
+   "sev": 2,
+   "t": "Ébola: un caso importado en Nigeria",
+   "p": "Nigeria",
+   "lat": 9.06,
+   "lon": 7.49,
+   "d": "2026-11-04",
+   "st": "Contenido",
+   "f": [
+    [
+     "1",
+     "caso confirmado"
+    ]
+   ],
+   "s": "La OMS destacó la respuesta rápida de Nigeria y Kenia ante los casos llegados desde la RDC.",
+   "src": [
+    [
+     "OMS, rueda de prensa (4 nov)",
+     "https://www.who.int/news-room/speeches/item/who-director-general-s-opening-remarks-at-the-media-briefing---4-november-2026"
+    ]
+   ]
+  },
+  {
+   "id": "sarampion",
+   "cat": "salud",
+   "sev": 2,
+   "t": "Sarampión en Estados Unidos: más del doble que en 2025",
+   "p": "Estados Unidos",
+   "lat": 33,
+   "lon": -97,
+   "d": "2026-11-14",
+   "st": "Activo",
+   "f": [
+    [
+     "5.412",
+     "casos confirmados en 2026"
+    ],
+    [
+     "591",
+     "hospitalizaciones"
+    ],
+    [
+     "6",
+     "muertes"
+    ]
+   ],
+   "s": "Los CDC cuentan 43 brotes este año; en todo 2025 hubo 2.289 casos.",
+   "src": [
+    [
+     "Weekly Round Up of Infectious Disease (datos CDC)",
+     "https://chrisramamd.substack.com/p/the-weekly-round-up-of-infectious-16d"
+    ]
+   ]
+  },
+  {
+   "id": "shamonda",
+   "cat": "salud",
+   "sev": 2,
+   "t": "Primer caso humano de virus Shamonda",
+   "p": "Francia",
+   "lat": 46.6,
+   "lon": 2.4,
+   "d": "2026-11-02",
+   "st": "En vigilancia",
+   "f": [
+    [
+     "1",
+     "caso confirmado, primero en el mundo"
+    ]
+   ],
+   "s": "La OMS considera que aún no puede valorar el riesgo. Lo más probable es la transmisión por vector; se investiga la vía alimentaria. La transfusión parece descartada.",
+   "src": [
+    [
+     "OMS DON623",
+     "https://www.who.int/emergencies/disease-outbreak-news/item/2026-DON623"
+    ]
+   ]
+  },
+  {
+   "id": "sumatra",
+   "cat": "clima",
+   "sev": 2,
+   "t": "Inundaciones en Sumatra del Norte y Aceh",
+   "p": "Indonesia",
+   "lat": 3.55,
+   "lon": 98.9,
+   "d": "2026-11-08",
+   "st": "Reciente",
+   "f": [
+    [
+     "9.600",
+     "personas afectadas"
+    ]
+   ],
+   "s": "Lluvias intensas del 5 al 8 de noviembre en Deli Serdang, Serdang Bedagai y Gayo Lues, con casas, puentes y una escuela dañados.",
+   "src": [
+    [
+     "AHA Centre (ASEAN)",
+     "https://ahacentre.org/weekly-disaster-update/weekly-disaster-update-2-8-november-2026/"
+    ]
+   ]
+  },
+  {
+   "id": "bulo-17n",
+   "cat": "servicios",
+   "sev": 1,
+   "t": "Bulo: «apagón mundial» hoy 17 de noviembre",
+   "p": "Redes sociales, varios países",
+   "lat": null,
+   "lon": null,
+   "d": "2026-11-17",
+   "st": "Desmentido",
+   "f": [],
+   "s": "No hay ningún corte de luz, internet o banca previsto. Lo único programado hoy es una prueba rutinaria del sistema de alertas de emergencia de EE. UU., hacia las 14:20 hora del Este (19:20 UTC), que interrumpe un momento la radio y la televisión.",
+   "src": [
+    [
+     "France 24",
+     "https://www.france24.com/en/tv-shows/truth-or-fake/20261116-november-17-blackout-hoax-how-a-conspiracy-theory-went-viral-around-the-world"
+    ],
+    [
+     "NBC Chicago (FEMA)",
+     "https://www.nbcchicago.com/news/local/what-is-happening-on-nov-17-what-to-expect-as-fema-prepares-for-nationwide-test/4017342/"
+    ]
+   ]
+  },
+  {
+   "id": "ridgecrest",
+   "cat": "servicios",
+   "sev": 1,
+   "t": "Incidente informático en un hospital de California",
+   "p": "Ridgecrest, EE. UU.",
+   "lat": 35.62,
+   "lon": -117.67,
+   "d": "2026-11-10",
+   "st": "En recuperación",
+   "f": [],
+   "s": "Teléfonos, ordenadores y farmacia quedaron afectados el 9 de noviembre. No está confirmado que sea ransomware. Los teléfonos y los pagos de farmacia ya funcionan.",
+   "src": [
+    [
+     "DysruptionHub",
+     "https://dysruptionhub.com/"
+    ]
+   ]
+  },
+  {
+   "id": "huelga-11n",
+   "cat": "transporte",
+   "sev": 1,
+   "t": "Balance de la huelga general del 11-N",
+   "p": "España",
+   "lat": 41.3,
+   "lon": 2.1,
+   "d": "2026-11-11",
+   "st": "Finalizado",
+   "f": [
+    [
+     "289",
+     "vuelos cancelados"
+    ],
+    [
+     "24 %",
+     "AVE y Larga Distancia suprimidos"
+    ]
+   ],
+   "s": "El transporte concentró las incidencias; hoteles y agencias trabajaron con normalidad.",
+   "src": [
+    [
+     "Hosteltur",
+     "https://www.hosteltur.com/179889_balance-de-la-huelga-11n-casi-300-vuelos-cancelados-y-sin-apenas-impacto-en-hoteles-y-agencias.html"
+    ]
+   ]
+  },
+  {
+   "id": "kilauea",
+   "cat": "geo",
+   "sev": 1,
+   "t": "Kīlauea: termina el episodio 56 y baja la alerta",
+   "p": "Hawái, EE. UU.",
+   "lat": 19.42,
+   "lon": -155.29,
+   "d": "2026-11-06",
+   "st": "En pausa",
+   "f": [],
+   "s": "El observatorio rebajó el nivel de «vigilancia» a «aviso» y el código de aviación de naranja a amarillo.",
+   "src": [
+    [
+     "USGS HVO",
+     "https://volcanoes.usgs.gov/hans-public/notice/DOI-USGS-HVO-2026-11-07T00:31:16+00:00"
+    ]
+   ]
+  },
+  {
+   "id": "croacia",
+   "cat": "clima",
+   "sev": 1,
+   "t": "Inundación en Croacia",
+   "p": "Zona de Rijeka",
+   "lat": 45.44,
+   "lon": 14.37,
+   "d": "2026-11-12",
+   "st": "Alerta verde",
+   "f": [],
+   "s": "Evento registrado por GDACS con impacto humanitario bajo.",
+   "src": [
+    [
+     "GDACS",
+     "http://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104285"
+    ]
+   ]
+  },
+  {
+   "id": "wf-aus",
+   "cat": "clima",
+   "sev": 1,
+   "t": "Incendios forestales en el norte de Australia",
+   "p": "Kimberley, Territorio del Norte y Queensland",
+   "lat": -19.08,
+   "lon": 122.26,
+   "d": "2026-11-14",
+   "st": "Alerta verde",
+   "f": [
+    [
+     "9",
+     "alertas GDACS, 11–14 nov"
+    ]
+   ],
+   "s": "Fuegos de sabana extensos en zonas poco pobladas.",
+   "src": [
+    [
+     "GDACS",
+     "http://www.gdacs.org/report.aspx?eventtype=WF&eventid=1033859"
+    ]
+   ]
+  },
+  {
+   "id": "wf-sahel",
+   "cat": "clima",
+   "sev": 1,
+   "t": "Incendios en el Sahel",
+   "p": "Burkina Faso, Níger, Nigeria y Benín",
+   "lat": 13.56,
+   "lon": -1.48,
+   "d": "2026-11-14",
+   "st": "Alerta verde",
+   "f": [
+    [
+     "9",
+     "alertas GDACS, 11–14 nov"
+    ]
+   ],
+   "s": "Quemas de estación seca detectadas por satélite.",
+   "src": [
+    [
+     "GDACS",
+     "http://www.gdacs.org/report.aspx?eventtype=WF&eventid=1033853"
+    ]
+   ]
+  },
+  {
+   "id": "wf-ssd",
+   "cat": "clima",
+   "sev": 1,
+   "t": "Incendios en Sudán del Sur y Sudán",
+   "p": "Alto Nilo y Bahr el Ghazal",
+   "lat": 9.51,
+   "lon": 31.42,
+   "d": "2026-11-14",
+   "st": "Alerta verde",
+   "f": [
+    [
+     "5",
+     "alertas GDACS, 11–14 nov"
+    ]
+   ],
+   "s": "Quemas de estación seca detectadas por satélite.",
+   "src": [
+    [
+     "GDACS",
+     "http://www.gdacs.org/report.aspx?eventtype=WF&eventid=1033877"
+    ]
+   ]
+  },
+  {
+   "id": "wf-bwa",
+   "cat": "clima",
+   "sev": 1,
+   "t": "Incendios en Botsuana",
+   "p": "Botsuana",
+   "lat": -22.83,
+   "lon": 24.99,
+   "d": "2026-11-12",
+   "st": "Alerta verde",
+   "f": [
+    [
+     "2",
+     "alertas GDACS, 12 nov"
+    ]
+   ],
+   "s": "Detectados por satélite; impacto bajo.",
+   "src": [
+    [
+     "GDACS",
+     "http://www.gdacs.org/report.aspx?eventtype=WF&eventid=1033817"
+    ]
+   ]
+  }
+ ]
+}
